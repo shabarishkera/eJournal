@@ -103,6 +103,7 @@ export default function TabLayout() {
                 key={`settings-${Math.random()}`} // Ensure re-render on tab switch by adding a random key
                 options={{
                     title: "Settings",
+
                     tabBarIcon: ({ color }) => <Feather name="settings" size={28} color={color} />,
                 }}
             />

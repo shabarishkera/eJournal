@@ -92,7 +92,9 @@ export default function Home() {
                         //         </TouchableOpacity>
                         //     );
                         // }}
-
+                        loadItemsForMonth={(day) => {
+                            console.log("loading items for the day", day);
+                        }}
                         renderEmptyDate={() => {
                             return (
                                 <View style={styles.item}>
@@ -104,17 +106,16 @@ export default function Home() {
                             return (
                                 <TouchableOpacity
                                     onPress={() => {
-                                        console.log(selected);
-                                        router.replace(`/addOld?data=${item.date}`);
+                                        router.push(`/addOld?data=${selected}`);
                                     }}
-                                    style={styles.item}
+                                    style={[styles.item, { flex: 1, justifyContent: "center", alignItems: "center" }]}
                                 >
                                     <Text style={styles.itemText}>No Data Avalialble...Click to add ..</Text>
                                 </TouchableOpacity>
                             );
                         }}
-                        futureScrollRange={4}
-                        pastScrollRange={4}
+                        futureScrollRange={1}
+                        pastScrollRange={1}
                         renderItem={(item) => (
                             <TouchableOpacity
                                 onPress={() => {

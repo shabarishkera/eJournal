@@ -5,9 +5,11 @@ import { useColorScheme } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { editDiary, getDiaryByDate } from "@/components/backend/database";
+import AntDesign from "@expo/vector-icons/AntDesign";
 export default function addOld() {
     const theme = useColorScheme();
     const colortheme = Colors[theme];
+    const [editable, setEditable] = useState(false);
     const router = useRouter();
     const [dateval, setDate] = useState(""); // State for holding the date
     const [diary, setDiary] = useState("");
@@ -66,8 +68,19 @@ export default function addOld() {
         <SafeAreaProvider>
             <SafeAreaView style={{ flex: 1, height: "100%" }}>
                 <View style={styles.container}>
+                    <View style={styles.editContainer}>
+                        <AntDesign
+                            onPress={() => {
+                                setEditable(!editable);
+                            }}
+                            name={editable ? "closecircleo" : "edit"}
+                            size={24}
+                            color="black"
+                        />
+                    </View>
+
                     <TextInput
-                        editable={true}
+                        editable={editable}
                         multiline={true}
                         style={[
                             styles.TextInput,
@@ -76,6 +89,7 @@ export default function addOld() {
                                 color: colortheme.text,
                                 paddingHorizontal: 20,
                                 elevation: 40,
+                                opacity: editable ? 1 : 0.8,
                             },
                         ]}
                         value={diary}
@@ -100,11 +114,18 @@ const styles = StyleSheet.create({
         height: "100%",
         alignItems: "center",
     },
+    editContainer: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        width: "100%",
+        padding: 10,
+    },
     TextInput: {
-        height: "85%",
+        height: "80%",
         width: "95%",
         margin: 10,
-        marginTop: 45,
+        marginTop: 10,
         borderRadius: 12,
         textAlignVertical: "top",
     },
@@ -115,7 +136,7 @@ const styles = StyleSheet.create({
         height: 50,
         alignItems: "center",
         justifyContent: "center",
-        marginTop: 10,
+        marginTop: 5,
         marginBottom: 10,
     },
     saveText: {
