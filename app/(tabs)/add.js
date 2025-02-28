@@ -6,7 +6,7 @@ import { addDiary, getDiaryByDate, editDiary } from "@/components/backend/databa
 import { Colors } from "@/constants/Colors";
 import { useFocusEffect, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from "react-native-alert-notification";
 export default function Add() {
     const theme = useColorScheme();
     const colortheme = Colors[theme];
@@ -76,6 +76,11 @@ export default function Add() {
                 } else {
                     const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
                 }
+                Toast.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: "Success",
+                    textBody: "Data is added !",
+                });
             } catch (error) {
                 console.log("Error occured ...!");
             } finally {
@@ -89,63 +94,61 @@ export default function Add() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            // handle onPress
-                        }}
-                    >
-                        <Image
-                            alt=""
-                            source={
-                                // assuming user.avatarUrl is like '@/assets/images/avatar.png'
-                                {
-                                    uri: user?.avatarUrl,
-                                }
-                            }
-                            style={styles.avatar}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => {
-                            // handle onPress
-                        }}
-                    >
-                        <FeatherIcon color="#1a2525" name="bell" size={24} />
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.placeholder}>
-                    <View style={styles.placeholderInset}>
-                        <View style={styles.contentContainer}>
-                            <TextInput
-                                editable={true}
-                                multiline={true}
-                                style={[
-                                    styles.TextInput,
+            <AlertNotificationRoot>
+                <View style={styles.container}>
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => {}}>
+                            <Image
+                                alt=""
+                                source={
+                                    // assuming user.avatarUrl is like '@/assets/images/avatar.png'
                                     {
-                                        backgroundColor: colortheme.background,
-                                        color: colortheme.text,
-                                        paddingHorizontal: 20,
-                                        elevation: 40,
-                                    },
-                                ]}
-                                value={diary}
-                                placeholder="Journal your day ..."
-                                placeholderTextColor="gray"
-                                onChangeText={(phrasetext) => setDiary(phrasetext)}
-                                textAlignVertical="top"
+                                        uri: user?.avatarUrl,
+                                    }
+                                }
+                                style={styles.avatar}
                             />
+                        </TouchableOpacity>
 
-                            <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
-                                <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
-                            </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // handle onPress
+                            }}
+                        >
+                            <FeatherIcon color="#1a2525" name="bell" size={24} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.placeholder}>
+                        <View style={styles.placeholderInset}>
+                            <View style={styles.contentContainer}>
+                                <TextInput
+                                    editable={true}
+                                    multiline={true}
+                                    style={[
+                                        styles.TextInput,
+                                        {
+                                            backgroundColor: colortheme.background,
+                                            color: colortheme.text,
+                                            paddingHorizontal: 20,
+                                            elevation: 40,
+                                        },
+                                    ]}
+                                    value={diary}
+                                    placeholder="Journal your day ..."
+                                    placeholderTextColor="gray"
+                                    onChangeText={(phrasetext) => setDiary(phrasetext)}
+                                    textAlignVertical="top"
+                                />
+
+                                <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
+                                    <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
-            </View>
+            </AlertNotificationRoot>
         </SafeAreaView>
     );
 }

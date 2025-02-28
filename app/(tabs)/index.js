@@ -92,9 +92,7 @@ export default function Home() {
                         //         </TouchableOpacity>
                         //     );
                         // }}
-                        loadItemsForMonth={(day) => {
-                            console.log("loading items for the day", day);
-                        }}
+                        loadItemsForMonth={(day) => {}}
                         renderEmptyDate={() => {
                             return (
                                 <View style={styles.item}>

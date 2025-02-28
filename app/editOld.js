@@ -18,7 +18,6 @@ export default function addOld() {
     const { data } = useLocalSearchParams();
 
     const getTodaysDiary = async (date) => {
-        console.log("getting diary for date", date);
         setDiary("");
         const res = await getDiaryByDate(date);
 
@@ -51,10 +50,8 @@ export default function addOld() {
             setIsLoading(true);
             try {
                 const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
-                console.log(res);
             } catch (error) {
                 console.log("Error occured ...!");
-                console.log(error);
             } finally {
                 setIsLoading(false);
                 router.navigate("/(tabs)");

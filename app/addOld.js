@@ -30,14 +30,11 @@ export default function addOld() {
     // Function to handle saving the diary entry
     const handleSave = async () => {
         if (dateval && diary) {
-            console.log(dateval, diary);
             setIsLoading(true);
             try {
                 const res = await addDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
-                console.log(res);
             } catch (error) {
                 console.log("Error occured ...!");
-                console.log(error);
             } finally {
                 setIsLoading(false);
                 router.navigate("/(tabs)");

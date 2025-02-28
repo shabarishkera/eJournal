@@ -50,7 +50,6 @@ export async function fetchalldiary() {
 }
 
 export async function addDiary(date, year, day, data) {
-    console.log(date);
     await database
         .runAsync(`INSERT INTO diarydata values('${date}',${year},${day},"${data}") `)
         .then(() => {
@@ -63,7 +62,6 @@ export async function addDiary(date, year, day, data) {
     return "data saved successfully";
 }
 export async function editDiary(date, year, day, data) {
-    console.log("CURRENTY LEDITING", date, data);
     await database
         .runAsync(`UPDATE diarydata SET data="${data}" WHERE dateinfo='${date}' `)
         .then(() => {
@@ -76,9 +74,7 @@ export async function editDiary(date, year, day, data) {
     return "data updated successfully";
 }
 export async function getDiaryByDate(date) {
-    console.log(date);
     const firstRow = await database.getFirstAsync(`SELECT * FROM diarydata  WHERE  dateinfo='${date}'`);
-    console.log(firstRow + "data");
 
     return firstRow.data;
 }

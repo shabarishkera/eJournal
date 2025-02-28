@@ -19,7 +19,7 @@ export default function editProfile(prop) {
 
             if (res !== null) {
                 let parsedRes = JSON.parse(res);
-                console.log("in init user", parsedRes);
+
                 setName(parsedRes.name);
                 setEmail(parsedRes.email);
                 setBio(parsedRes.bio);
@@ -57,8 +57,6 @@ export default function editProfile(prop) {
             aspect: [4, 3],
             quality: 1,
         });
-
-        console.log(result);
 
         if (!result.canceled) {
             setAvatar(result.assets[0].uri);

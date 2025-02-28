@@ -18,7 +18,7 @@ export default function Settings() {
 
             if (res !== null) {
                 let parsedRes = JSON.parse(res);
-                console.log("in init user", parsedRes);
+
                 setUser(parsedRes);
             } else {
                 console.log("No user data found");

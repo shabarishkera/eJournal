@@ -1,11 +1,11 @@
 import { Platform, StyleSheet, Dimensions, SafeAreaView, ScrollView, View, TouchableOpacity, TextInput, Text, Image } from "react-native";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-
+import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
-
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from "react-native-alert-notification";
 import { ContributionGraph } from "react-native-chart-kit";
 
 const today = new Date();
@@ -21,6 +21,7 @@ export default function Explore() {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [entry, setEntry] = useState([]);
+    const [visible, setVisible] = useState(false);
     const stats = [
         { label: "Backup", value: "System" },
         { label: "Account Type", value: "Personal" },
@@ -53,7 +54,6 @@ export default function Explore() {
     async function getEntry() {
         let res = await fetchalldiary();
         if (res) setEntry(res);
-        console.log(res);
     }
     useEffect(() => {
         initUser();
@@ -67,60 +67,89 @@ export default function Explore() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
-            <View style={styles.header}>
-                <View style={styles.headerAction}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            // handle onPress
-                        }}
-                    >
-                        {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
-                    </TouchableOpacity>
-                </View>
-                <Text numberOfLines={1} style={styles.headerTitle}>
-                    Profile
-                </Text>
+            <AlertNotificationRoot>
+                <View style={styles.header}>
+                    <View style={styles.headerAction}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // handle onPress
+                            }}
+                        >
+                            {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
+                        </TouchableOpacity>
+                    </View>
+                    <Text numberOfLines={1} style={styles.headerTitle}>
+                        Profile
+                    </Text>
 
-                <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            // handle onPress
-                        }}
-                    >
-                        <FeatherIcon name="more-vertical" size={24} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            <ScrollView>
-                <View style={styles.content}>
-                    <View style={styles.profile}>
-                        <View style={styles.profileTop}>
-                            <View style={styles.avatar}>
-                                <Image
-                                    alt=""
-                                    source={{
-                                        uri: user?.avatarUrl,
+                    <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // handle onPress
+                            }}
+                        >
+                            <Menu
+                                visible={visible}
+                                anchor={<FeatherIcon onPress={() => setVisible(true)} name="more-vertical" size={24} />}
+                                onRequestClose={() => {
+                                    setVisible(false);
+                                }}
+                            >
+                                <MenuItem
+                                    onPress={() => {
+                                        router.push("/editProfile");
                                     }}
-                                    style={styles.avatarImg}
-                                />
+                                >
+                                    Edit Profile
+                                </MenuItem>
+                                <MenuItem
+                                    onPress={() => {
+                                        Dialog.show({
+                                            type: ALERT_TYPE.WARNING,
+                                            title: "Log Out ?",
+                                            textBody: "You will be logged out of the app !",
+                                            button: "Ok",
+                                            onPressButton: () => {},
+                                        });
+                                    }}
+                                >
+                                    Log out
+                                </MenuItem>
+                            </Menu>
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
-                                <View style={styles.avatarNotification} />
+                <ScrollView>
+                    <View style={styles.content}>
+                        <View style={styles.profile}>
+                            <Text style={styles.sectionTitle}>Account</Text>
+                            <View style={styles.profileTop}>
+                                <View style={styles.avatar}>
+                                    <Image
+                                        alt=""
+                                        source={{
+                                            uri: user?.avatarUrl,
+                                        }}
+                                        style={styles.avatarImg}
+                                    />
+
+                                    <View style={styles.avatarNotification} />
+                                </View>
+
+                                <View style={styles.profileBody}>
+                                    <Text style={styles.profileTitle}>{user?.name}</Text>
+
+                                    <Text style={styles.profileSubtitle}>
+                                        <Text style={{ color: "" }}>{user?.email}</Text>
+                                    </Text>
+                                </View>
                             </View>
 
-                            <View style={styles.profileBody}>
-                                <Text style={styles.profileTitle}>{user?.name}</Text>
+                            <Text style={styles.profileDescription}>{user?.bio}</Text>
 
-                                <Text style={styles.profileSubtitle}>
-                                    <Text style={{ color: "" }}>{user?.email}</Text>
-                                </Text>
-                            </View>
-                        </View>
-
-                        <Text style={styles.profileDescription}>{user?.bio}</Text>
-
-                        <View style={styles.profileTags}>
-                            {/* {tags.map((tag, index) => (
+                            <View style={styles.profileTags}>
+                                {/* {tags.map((tag, index) => (
                                 <TouchableOpacity
                                     key={index}
                                     onPress={() => {
@@ -130,133 +159,134 @@ export default function Explore() {
                                     <Text style={styles.profileTagsItem}>#{tag}</Text>
                                 </TouchableOpacity>
                             ))} */}
+                            </View>
+                        </View>
+
+                        <View style={styles.stats}>
+                            {stats.map(({ label, value }, index) => (
+                                <View key={index} style={[styles.statsItem, index === 0 && { borderLeftWidth: 0 }]}>
+                                    <Text style={styles.statsItemText}>{label}</Text>
+
+                                    <Text style={styles.statsItemValue}>{value}</Text>
+                                </View>
+                            ))}
+                        </View>
+
+                        <View style={styles.contentActions}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    router.push("/editProfile");
+                                }}
+                                style={{ flex: 1, paddingHorizontal: 6 }}
+                            >
+                                <View style={styles.btn}>
+                                    <TouchableOpacity>
+                                        <Text style={styles.btnText}>Edit Profile</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={() => {
+                                    router.navigate("/(tabs)/settings");
+                                }}
+                                style={{ flex: 1, paddingHorizontal: 6 }}
+                            >
+                                <View style={styles.btn}>
+                                    <TouchableOpacity>
+                                        <Text style={styles.btnText}>Settings</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
 
-                    <View style={styles.stats}>
-                        {stats.map(({ label, value }, index) => (
-                            <View key={index} style={[styles.statsItem, index === 0 && { borderLeftWidth: 0 }]}>
-                                <Text style={styles.statsItemText}>{label}</Text>
+                    <View style={styles.list}>
+                        <View style={styles.listHeader}>
+                            <Text style={styles.listTitle}>Recents</Text>
 
-                                <Text style={styles.statsItemValue}>{value}</Text>
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.contentActions}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                router.push("/editProfile");
-                            }}
-                            style={{ flex: 1, paddingHorizontal: 6 }}
-                        >
-                            <View style={styles.btn}>
-                                <TouchableOpacity>
-                                    <Text style={styles.btnText}>Edit Profile</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                router.navigate("/(tabs)/settings");
-                            }}
-                            style={{ flex: 1, paddingHorizontal: 6 }}
-                        >
-                            <View style={styles.btn}>
-                                <TouchableOpacity>
-                                    <Text style={styles.btnText}>Settings</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View style={styles.list}>
-                    <View style={styles.listHeader}>
-                        <Text style={styles.listTitle}>Recents</Text>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                // handle onPress
-                            }}
-                        >
-                            {/* <Text style={styles.listAction}>View All</Text> */}
-                            <View style={styles.search}>
-                                <View style={styles.searchIcon}>
-                                    <FeatherIcon color="#778599" name="search" size={17} />
-                                </View>
-
-                                <TextInput
-                                    autoCapitalize="words"
-                                    onChangeText={(t) => setSearchTerm(t)}
-                                    value={searchTerm}
-                                    autoComplete="name"
-                                    placeholder="Search..."
-                                    placeholderTextColor="#778599"
-                                    style={styles.searchControl}
-                                />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
-                        {items.map(({ data, dateinfo, year }, index) => (
                             <TouchableOpacity
-                                key={index}
                                 onPress={() => {
-                                    router.push(`/editOld?data=${dateinfo}`, {});
+                                    // handle onPress
                                 }}
                             >
-                                <View style={styles.card}>
-                                    <View style={styles.cardTop}>
-                                        <View style={styles.cardIcon}>
-                                            <FeatherIcon color="#000" name={"home"} size={24} />
-                                        </View>
-
-                                        <View style={styles.cardBody}>
-                                            <Text style={styles.cardTitle}>{dateinfo}</Text>
-
-                                            <Text numberOfLines={1} style={styles.cardSubtitle}>
-                                                {data}
-                                            </Text>
-                                        </View>
+                                {/* <Text style={styles.listAction}>View All</Text> */}
+                                <View style={styles.search}>
+                                    <View style={styles.searchIcon}>
+                                        <FeatherIcon color="#778599" name="search" size={17} />
                                     </View>
 
-                                    <View style={styles.cardFooter}>
-                                        <Text style={styles.cardFooterText}>{}</Text>
-
-                                        <Text style={styles.cardFooterText}>{year}</Text>
-                                    </View>
+                                    <TextInput
+                                        autoCapitalize="words"
+                                        onChangeText={(t) => setSearchTerm(t)}
+                                        value={searchTerm}
+                                        autoComplete="name"
+                                        placeholder="Search..."
+                                        placeholderTextColor="#778599"
+                                        style={styles.searchControl}
+                                    />
                                 </View>
                             </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
+                        </View>
 
-                <View style={styles.list}>
-                    <View style={styles.listHeader}>
-                        <Text style={styles.listTitle}>Your Graph</Text>
+                        <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {items.map(({ data, dateinfo, year }, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    onPress={() => {
+                                        router.push(`/editOld?data=${dateinfo}`, {});
+                                    }}
+                                >
+                                    <View style={styles.card}>
+                                        <View style={styles.cardTop}>
+                                            <View style={styles.cardIcon}>
+                                                <FeatherIcon color="#000" name={"home"} size={24} />
+                                            </View>
 
-                        <TouchableOpacity
-                            onPress={() => {
-                                // handle onPress
-                            }}
-                        >
-                            <Text style={styles.listAction}>hide</Text>
-                        </TouchableOpacity>
+                                            <View style={styles.cardBody}>
+                                                <Text style={styles.cardTitle}>{dateinfo}</Text>
+
+                                                <Text numberOfLines={1} style={styles.cardSubtitle}>
+                                                    {data}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.cardFooter}>
+                                            <Text style={styles.cardFooterText}>{}</Text>
+
+                                            <Text style={styles.cardFooterText}>{year}</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
                     </View>
-                    <ContributionGraph
-                        values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
-                        endDate={new Date()} // Set the end date to match your graph data
-                        numDays={100} // Number of days you want to show
-                        width={Dimensions.get("window").width}
-                        height={220}
-                        chartConfig={chartConfig}
-                        horizontal={true}
-                    />
-                </View>
-            </ScrollView>
+
+                    <View style={styles.list}>
+                        <View style={styles.listHeader}>
+                            <Text style={styles.listTitle}>Your Graph</Text>
+
+                            <TouchableOpacity
+                                onPress={() => {
+                                    // handle onPress
+                                }}
+                            >
+                                <Text style={styles.listAction}>hide</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ContributionGraph
+                            values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
+                            endDate={new Date()} // Set the end date to match your graph data
+                            numDays={100} // Number of days you want to show
+                            width={Dimensions.get("window").width}
+                            height={220}
+                            chartConfig={chartConfig}
+                            horizontal={true}
+                        />
+                    </View>
+                </ScrollView>
+            </AlertNotificationRoot>
         </SafeAreaView>
     );
 }
@@ -293,7 +323,7 @@ const prepareDataForContributionGraph = (dates) => {
         } else {
         }
     });
-    console.log(graphData);
+
     return graphData;
 };
 
@@ -356,7 +386,7 @@ const styles = StyleSheet.create({
     },
     /** Content */
     content: {
-        paddingTop: 12,
+        paddingTop: 10,
         paddingHorizontal: 24,
     },
     contentActions: {
@@ -418,6 +448,15 @@ const styles = StyleSheet.create({
         color: "#266ef1",
         marginRight: 4,
     },
+    sectionTitle: {
+        margin: 8,
+        marginLeft: 12,
+        fontSize: 13,
+        letterSpacing: 0.33,
+        fontWeight: "500",
+        color: "#a69f9f",
+        textTransform: "uppercase",
+    },
     /** Avatar */
     avatar: {
         position: "relative",
@@ -426,6 +465,8 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 9999,
+        borderWidth: 2,
+        borderColor: "#266ef1",
     },
     avatarNotification: {
         position: "absolute",

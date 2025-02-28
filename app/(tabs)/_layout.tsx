@@ -65,8 +65,6 @@ export default function TabLayout() {
             screenListeners={{
                 tabPress: (e) => {
                     // You can also do something else when a tab is pressed if
-
-                    console.log(e.target);
                     // ruter.push(e.target.name);
                 },
             }}
