@@ -6,18 +6,32 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Toast } from "expo-toast";
 import { createuser } from "../backend/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 export default function Login() {
     const [isLogin, setIslogin] = useState(true);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [colortheme] = useColorScheme();
     const [confirmPassword, setConfirmPassword] = useState("");
-
+    const router = useRouter();
     const handleOnPress = async () => {
         try {
-            if (!isLogin) if (email && password === confirmPassword) AsyncStorage.setItem("userToken", email);
+            if (!isLogin)
+                if (email && password === confirmPassword)
+                    AsyncStorage.setItem(
+                        "userToken",
+                        JSON.stringify({
+                            email: email,
+                            password: password,
+                            name: "John Doe",
+                            bio: "Enter Something About You Here ..",
+                            avatarUrl:
+                                "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
+                        })
+                    );
+            router.navigate("/(tabs)");
         } catch (error) {
-            console.log("unable to create user");
+            console.log("unable to create user", error);
         }
     };
     return (

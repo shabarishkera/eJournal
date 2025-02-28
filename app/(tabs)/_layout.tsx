@@ -18,16 +18,18 @@ import { fetchalldiary } from "@/components/backend/database";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
-import { FlipInEasyX } from "react-native-reanimated";
+
 export default function TabLayout() {
     const colorScheme = useColorScheme();
     const [userTocken, setUserTocken] = useState<String | null>(null);
     const [loading, setIsLoading] = useState<Boolean>(true);
     const ruter = useRouter();
+
     useLayoutEffect(() => {
         (async () => {
             try {
                 init();
+
                 const tocken = await AsyncStorage.getItem("userToken");
                 setIsLoading(false);
 
@@ -111,7 +113,7 @@ export default function TabLayout() {
                 name="explore"
                 key={`explore-${Math.random()}`} // Ensure re-render on tab switch by adding a random key
                 options={{
-                    title: "Explore",
+                    title: "Profile",
                     tabBarIcon: ({ color }) => <AntDesign name="user" size={28} color={color} />,
                 }}
             />

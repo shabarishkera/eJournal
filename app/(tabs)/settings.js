@@ -1,19 +1,43 @@
 import { Image, StyleSheet, Platform, Text, Button, View, TouchableOpacity, ScrollView, Switch } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
+import ActionSheet from "react-native-actions-sheet";
 import { Linking } from "react-native";
-import { useEffect, useState } from "react";
-import { SectionRow, SettingsPage, NavigateRow, BaseRow, CheckRow } from "@supermercadoscaetano/react-native-settings-view";
+import { useEffect, useRef } from "react";
+import { useRouter } from "expo-router";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-
+import { useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Settings() {
-    useEffect(() => {
-        console.log("re-render-settings");
-    }, []);
+    const [user, setUser] = useState(null);
+    const placeholder = require("@/assets/images/profile.jpg");
+    const router = useRouter();
+    async function initUser() {
+        try {
+            const res = await AsyncStorage.getItem("userToken");
+
+            if (res !== null) {
+                let parsedRes = JSON.parse(res);
+                console.log("in init user", parsedRes);
+                setUser(parsedRes);
+            } else {
+                console.log("No user data found");
+                // Handle case when no userToken exists, e.g., set default user or redirect to login
+            }
+        } catch (error) {
+            console.error("Error retrieving user data", error);
+        }
+    }
+
     const [form, setForm] = useState({
         emailNotifications: true,
         pushNotifications: false,
     });
+    const actionSheetRef = useRef(null);
+    useEffect(() => {
+        initUser();
+    }, []);
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
@@ -24,7 +48,7 @@ export default function Settings() {
                                 // handle onPress
                             }}
                         >
-                            <FeatherIcon color="#000" name="arrow-left" size={24} />
+                            {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
                         </TouchableOpacity>
                     </View>
 
@@ -50,22 +74,20 @@ export default function Settings() {
                         <View style={styles.sectionBody}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    // handle onPress
+                                    router.navigate("/(tabs)/explore");
                                 }}
                                 style={styles.profile}
                             >
                                 <Image
                                     alt=""
-                                    source={{
-                                        uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
-                                    }}
+                                    source={user?.avatarUrl ? { uri: user?.avatarUrl } : placeholder}
                                     style={styles.profileAvatar}
                                 />
 
                                 <View style={styles.profileBody}>
-                                    <Text style={styles.profileName}>John Doe</Text>
+                                    <Text style={styles.profileName}>{user?.name}</Text>
 
-                                    <Text style={styles.profileHandle}>john@example.com</Text>
+                                    <Text style={styles.profileHandle}>{user?.email || "john@example.com"}</Text>
                                 </View>
 
                                 <FeatherIcon color="#bcbcbc" name="chevron-right" size={22} />
@@ -105,7 +127,7 @@ export default function Settings() {
 
                                     <View style={styles.rowSpacer} />
 
-                                    <Text style={styles.rowValue}>Los Angeles, CA</Text>
+                                    <Text style={styles.rowValue}>India</Text>
 
                                     <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
                                 </TouchableOpacity>
@@ -152,7 +174,25 @@ export default function Settings() {
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Contact Us</Text>
+                                    <Text style={styles.rowLabel}>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                const email = "shabarishkera@gmail.com";
+                                                const subject = "Enqiry/contact";
+                                                const body = "";
+
+                                                // Create the mailto link
+                                                const url = `mailto:${email}?subject=${encodeURIComponent(
+                                                    subject
+                                                )}&body=${encodeURIComponent(body)}`;
+
+                                                // Open the email client
+                                                Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
+                                            }}
+                                        >
+                                            <Text>Contact Us</Text>
+                                        </TouchableOpacity>
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -167,7 +207,25 @@ export default function Settings() {
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Report Bug</Text>
+                                    <Text style={styles.rowLabel}>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                const email = "shabarishkera@gmail.com";
+                                                const subject = "Report bug";
+                                                const body = "";
+
+                                                // Create the mailto link
+                                                const url = `mailto:${email}?subject=${encodeURIComponent(
+                                                    subject
+                                                )}&body=${encodeURIComponent(body)}`;
+
+                                                // Open the email client
+                                                Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
+                                            }}
+                                        >
+                                            <Text>Report Bug</Text>
+                                        </TouchableOpacity>
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -213,6 +271,7 @@ export default function Settings() {
                                 <TouchableOpacity
                                     onPress={() => {
                                         // handle onPress
+                                        actionSheetRef.current?.show();
                                     }}
                                     style={styles.row}
                                 >
@@ -222,7 +281,18 @@ export default function Settings() {
                         </View>
                     </View>
 
-                    <Text style={styles.contentFooter}>App Version 2.24 #50491</Text>
+                    <Text style={styles.contentFooter}>App Version 1.0</Text>
+                    <ActionSheet ref={actionSheetRef}>
+                        <Text style={styles.actionHeadding}>Are You Sure To log out ?</Text>
+                        <View style={styles.actionWrap}>
+                            <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                                <Text style={styles.actionBtn}>ok</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                                <Text style={styles.actionBtn}>cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </ActionSheet>
                 </ScrollView>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -237,6 +307,23 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         width: "100%",
         paddingHorizontal: 16,
+    },
+    actionBtn: {
+        textAlign: "center",
+        margin: 15,
+        fontSize: 20,
+        color: "red",
+    },
+    actionWrap: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    actionHeadding: {
+        textAlign: "center",
+        fontFamily: "roboto",
+        marginTop: 10,
     },
     headerAction: {
         width: 40,

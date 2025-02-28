@@ -1,45 +1,72 @@
 import { Platform, StyleSheet, Dimensions, SafeAreaView, ScrollView, View, TouchableOpacity, TextInput, Text, Image } from "react-native";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 
-const tags = ["ios", "android", "web", "ui", "ux"];
-const stats = [
-    { label: "Location", value: "USA" },
-    { label: "Job Type", value: "Full Time" },
-    { label: "Experience", value: "6 years" },
-];
-const items = [
-    {
-        icon: "figma",
-        label: "Senior UI/UX Designer",
-        company: "Figma",
-        jobType: "Full Time",
-        years: "2019-2023",
-    },
-    {
-        icon: "github",
-        label: "Mid-level Designer",
-        company: "GitHub",
-        jobType: "Full Time",
-        years: "2017-2019",
-    },
-    {
-        icon: "twitter",
-        label: "Junior Designer",
-        company: "Twitter",
-        jobType: "Full Time",
-        years: "2015-2017",
-    },
-];
+import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
+
+import { ContributionGraph } from "react-native-chart-kit";
+
+const today = new Date();
+
+let date = new Date(today);
+date.setDate(today.getDate() + 7); // Subtract 'i' days
+
+date.setDate(today.getDate() + 30);
+
 const CARD_WIDTH = Math.min(Dimensions.get("screen").width * 0.75, 400);
 export default function Explore() {
+    const [items, setItems] = useState([]);
+    const router = useRouter();
+    const [user, setUser] = useState(null);
+    const [entry, setEntry] = useState([]);
+    const stats = [
+        { label: "Backup", value: "System" },
+        { label: "Account Type", value: "Personal" },
+        { label: "Entries", value: entry?.length },
+    ];
+    const [searchTerm, setSearchTerm] = useState("");
+    async function initUser() {
+        try {
+            const res = await AsyncStorage.getItem("userToken");
+
+            if (res !== null) {
+                let parsedRes = JSON.parse(res);
+
+                setUser(parsedRes);
+            } else {
+                console.log("No user data found");
+                // Handle case when no userToken exists, e.g., set default user or redirect to login
+            }
+        } catch (error) {
+            console.error("Error retrieving user data", error);
+        }
+    }
+    async function getRecents(searchTerm) {
+        let res = await getLast30DaysData(searchTerm);
+
+        if (res) {
+            setItems(res.reverse());
+        }
+    }
+    async function getEntry() {
+        let res = await fetchalldiary();
+        if (res) setEntry(res);
+        console.log(res);
+    }
+    useEffect(() => {
+        initUser();
+        getEntry();
+        getRecents();
+    }, []);
+
+    useEffect(() => {
+        getRecents(searchTerm);
+    }, [searchTerm]);
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
             <View style={styles.header}>
                 <View style={styles.headerAction}>
                     <TouchableOpacity
@@ -47,25 +74,12 @@ export default function Explore() {
                             // handle onPress
                         }}
                     >
-                        <FeatherIcon color="#000" name="arrow-left" size={24} />
+                        {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
                     </TouchableOpacity>
                 </View>
                 <Text numberOfLines={1} style={styles.headerTitle}>
-                    Settings
+                    Profile
                 </Text>
-                {/* <View style={styles.search}>
-                    <View style={styles.searchIcon}>
-                        <FeatherIcon color="#778599" name="search" size={17} />
-                    </View>
-
-                    <TextInput
-                        autoCapitalize="words"
-                        autoComplete="name"
-                        placeholder="Search..."
-                        placeholderTextColor="#778599"
-                        style={styles.searchControl}
-                    />
-                </View> */}
 
                 <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
                     <TouchableOpacity
@@ -86,7 +100,7 @@ export default function Explore() {
                                 <Image
                                     alt=""
                                     source={{
-                                        uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
+                                        uri: user?.avatarUrl,
                                     }}
                                     style={styles.avatarImg}
                                 />
@@ -95,22 +109,18 @@ export default function Explore() {
                             </View>
 
                             <View style={styles.profileBody}>
-                                <Text style={styles.profileTitle}>{"Nickolas\nMiller"}</Text>
+                                <Text style={styles.profileTitle}>{user?.name}</Text>
 
                                 <Text style={styles.profileSubtitle}>
-                                    UI/UX Designer
-                                    {" · "}
-                                    <Text style={{ color: "#266EF1" }}>@nickmiller</Text>
+                                    <Text style={{ color: "" }}>{user?.email}</Text>
                                 </Text>
                             </View>
                         </View>
 
-                        <Text style={styles.profileDescription}>
-                            Skilled in user research, wireframing, prototyping, and collaborating with cross-functional teams.
-                        </Text>
+                        <Text style={styles.profileDescription}>{user?.bio}</Text>
 
                         <View style={styles.profileTags}>
-                            {tags.map((tag, index) => (
+                            {/* {tags.map((tag, index) => (
                                 <TouchableOpacity
                                     key={index}
                                     onPress={() => {
@@ -119,7 +129,7 @@ export default function Explore() {
                                 >
                                     <Text style={styles.profileTagsItem}>#{tag}</Text>
                                 </TouchableOpacity>
-                            ))}
+                            ))} */}
                         </View>
                     </View>
 
@@ -136,23 +146,27 @@ export default function Explore() {
                     <View style={styles.contentActions}>
                         <TouchableOpacity
                             onPress={() => {
-                                // handle onPress
+                                router.push("/editProfile");
                             }}
                             style={{ flex: 1, paddingHorizontal: 6 }}
                         >
                             <View style={styles.btn}>
-                                <Text style={styles.btnText}>Follow</Text>
+                                <TouchableOpacity>
+                                    <Text style={styles.btnText}>Edit Profile</Text>
+                                </TouchableOpacity>
                             </View>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={() => {
-                                // handle onPress
+                                router.navigate("/(tabs)/settings");
                             }}
                             style={{ flex: 1, paddingHorizontal: 6 }}
                         >
-                            <View style={styles.btnPrimary}>
-                                <Text style={styles.btnPrimaryText}>Message</Text>
+                            <View style={styles.btn}>
+                                <TouchableOpacity>
+                                    <Text style={styles.btnText}>Settings</Text>
+                                </TouchableOpacity>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -160,42 +174,59 @@ export default function Explore() {
 
                 <View style={styles.list}>
                     <View style={styles.listHeader}>
-                        <Text style={styles.listTitle}>My Experience</Text>
+                        <Text style={styles.listTitle}>Recents</Text>
 
                         <TouchableOpacity
                             onPress={() => {
                                 // handle onPress
                             }}
                         >
-                            <Text style={styles.listAction}>View All</Text>
+                            {/* <Text style={styles.listAction}>View All</Text> */}
+                            <View style={styles.search}>
+                                <View style={styles.searchIcon}>
+                                    <FeatherIcon color="#778599" name="search" size={17} />
+                                </View>
+
+                                <TextInput
+                                    autoCapitalize="words"
+                                    onChangeText={(t) => setSearchTerm(t)}
+                                    value={searchTerm}
+                                    autoComplete="name"
+                                    placeholder="Search..."
+                                    placeholderTextColor="#778599"
+                                    style={styles.searchControl}
+                                />
+                            </View>
                         </TouchableOpacity>
                     </View>
 
                     <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
-                        {items.map(({ icon, label, company, jobType, years }, index) => (
+                        {items.map(({ data, dateinfo, year }, index) => (
                             <TouchableOpacity
                                 key={index}
                                 onPress={() => {
-                                    // handle onPress
+                                    router.push(`/editOld?data=${dateinfo}`, {});
                                 }}
                             >
                                 <View style={styles.card}>
                                     <View style={styles.cardTop}>
                                         <View style={styles.cardIcon}>
-                                            <FeatherIcon color="#000" name={icon} size={24} />
+                                            <FeatherIcon color="#000" name={"home"} size={24} />
                                         </View>
 
                                         <View style={styles.cardBody}>
-                                            <Text style={styles.cardTitle}>{label}</Text>
+                                            <Text style={styles.cardTitle}>{dateinfo}</Text>
 
-                                            <Text style={styles.cardSubtitle}>{company}</Text>
+                                            <Text numberOfLines={1} style={styles.cardSubtitle}>
+                                                {data}
+                                            </Text>
                                         </View>
                                     </View>
 
                                     <View style={styles.cardFooter}>
-                                        <Text style={styles.cardFooterText}>{jobType}</Text>
+                                        <Text style={styles.cardFooterText}>{}</Text>
 
-                                        <Text style={styles.cardFooterText}>{years}</Text>
+                                        <Text style={styles.cardFooterText}>{year}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -205,52 +236,66 @@ export default function Explore() {
 
                 <View style={styles.list}>
                     <View style={styles.listHeader}>
-                        <Text style={styles.listTitle}>Recommended for you</Text>
+                        <Text style={styles.listTitle}>Your Graph</Text>
 
                         <TouchableOpacity
                             onPress={() => {
                                 // handle onPress
                             }}
                         >
-                            <Text style={styles.listAction}>View All</Text>
+                            <Text style={styles.listAction}>hide</Text>
                         </TouchableOpacity>
                     </View>
-
-                    <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
-                        {items.map(({ icon, label, company, jobType, years }, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                            >
-                                <View style={styles.card}>
-                                    <View style={styles.cardTop}>
-                                        <View style={styles.cardIcon}>
-                                            <FeatherIcon color="#000" name={icon} size={24} />
-                                        </View>
-
-                                        <View style={styles.cardBody}>
-                                            <Text style={styles.cardTitle}>{label}</Text>
-
-                                            <Text style={styles.cardSubtitle}>{company}</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.cardFooter}>
-                                        <Text style={styles.cardFooterText}>{jobType}</Text>
-
-                                        <Text style={styles.cardFooterText}>{years}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    <ContributionGraph
+                        values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
+                        endDate={new Date()} // Set the end date to match your graph data
+                        numDays={100} // Number of days you want to show
+                        width={Dimensions.get("window").width}
+                        height={220}
+                        chartConfig={chartConfig}
+                        horizontal={true}
+                    />
                 </View>
             </ScrollView>
         </SafeAreaView>
     );
 }
+const chartConfig = {
+    backgroundColor: "#f8f8f8",
+    backgroundGradientFrom: "#ffffff",
+    backgroundGradientTo: "#f8f8f8",
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(0, 144, 0, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 144, 0, ${opacity})`,
+    style: {
+        borderRadius: 16,
+    },
+};
+const prepareDataForContributionGraph = (dates) => {
+    let graphData = [];
+
+    // Regular expression to check if a date is in the format 'yyyy-mm-dd'
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+    // Loop through the dates and only add valid ones
+    dates.forEach((date) => {
+        // Check if the date matches the 'yyyy-mm-dd' format using regex
+        if (dateRegex.test(date)) {
+            const dateObj = new Date(date);
+            const formattedDate = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, "0")}-${dateObj
+                .getDate()
+                .toString()
+                .padStart(2, "0")}`;
+            graphData.push({
+                date: formattedDate,
+                count: 1, // You can adjust this count based on your activity data
+            });
+        } else {
+        }
+    });
+    console.log(graphData);
+    return graphData;
+};
 
 const styles = StyleSheet.create({
     /** Header */
@@ -260,7 +305,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 8,
         paddingHorizontal: 12,
-        borderBottomWidth: 1,
+        borderBottomWidth: 0,
         borderColor: "#e3e3e3",
     },
     headerAction: {
@@ -283,14 +328,13 @@ const styles = StyleSheet.create({
     /** Search */
     search: {
         position: "relative",
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: 0,
+        marginHorizontal: 10,
         backgroundColor: "#F0F0F0",
         borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "row",
+        width: 255,
     },
     searchIcon: {
         position: "absolute",
@@ -306,7 +350,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 12,
         paddingLeft: 34,
-        width: "100%",
+        width: "80%",
         fontSize: 16,
         fontWeight: "500",
     },
@@ -325,8 +369,11 @@ const styles = StyleSheet.create({
     },
     /** Profile */
     profile: {
-        paddingTop: 4,
+        padding: 4,
         paddingBottom: 16,
+        backgroundColor: "#f8f8f8",
+        marginBottom: 4,
+        borderRadius: 4,
     },
     profileTop: {
         flexDirection: "row",
@@ -437,15 +484,14 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 8,
         paddingHorizontal: 16,
-        borderWidth: 2,
+        borderWidth: 1,
         backgroundColor: "transparent",
         borderColor: "#266EF1",
     },
     btnText: {
         fontSize: 14,
         lineHeight: 20,
-        fontWeight: "700",
-        color: "#266EF1",
+        fontWeight: "400",
     },
     btnPrimary: {
         flexDirection: "row",
@@ -534,6 +580,7 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         lineHeight: 18,
         color: "#778599",
+        textOverflow: "elipsis",
     },
     cardFooter: {
         flexDirection: "row",

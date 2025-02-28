@@ -82,3 +82,35 @@ export async function getDiaryByDate(date) {
 
     return firstRow.data;
 }
+
+export async function getLast30DaysData(key) {
+    const dates = [];
+    const today = new Date();
+
+    // Loop for the last 30 days
+    for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i); // Subtract 'i' days
+        const formattedDate = date.toISOString().split("T")[0]; // Format as 'YYYY-MM-DD'
+        dates.push(formattedDate); // Add to the array
+    }
+
+    try {
+        const result = await database.getAllAsync("SELECT * FROM diarydata");
+        let ans = [];
+        for (let row of result) {
+            if (dates.includes(row.dateinfo)) ans.push(row);
+        }
+        let finalResult = [];
+        if (key) {
+            key = key.toLowerCase();
+            for (let a of ans) if (a.dateinfo.toLowerCase().includes(key) || a.data.toLowerCase().includes(key)) finalResult.push(a);
+            return finalResult;
+        }
+
+        return ans;
+    } catch (error) {
+        console.error("Error fetching data for the last 30 days:", error);
+        throw error; // Propagate the error
+    }
+}
