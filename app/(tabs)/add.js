@@ -1,4 +1,16 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, useColorScheme, Alert, SafeAreaView, Image } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    useColorScheme,
+    Alert,
+    SafeAreaView,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
@@ -95,59 +107,65 @@ export default function Add() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
             <AlertNotificationRoot>
-                <View style={styles.container}>
-                    <View style={styles.header}>
-                        <TouchableOpacity onPress={() => {}}>
-                            <Image
-                                alt=""
-                                source={
-                                    // assuming user.avatarUrl is like '@/assets/images/avatar.png'
-                                    {
-                                        uri: user?.avatarUrl,
-                                    }
-                                }
-                                style={styles.avatar}
-                            />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                // handle onPress
-                            }}
-                        >
-                            <FeatherIcon color="#1a2525" name="bell" size={24} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.placeholder}>
-                        <View style={styles.placeholderInset}>
-                            <View style={styles.contentContainer}>
-                                <TextInput
-                                    editable={true}
-                                    multiline={true}
-                                    style={[
-                                        styles.TextInput,
+                <KeyboardAvoidingView
+                    style={{ flex: 1 }}
+                    keyboardVerticalOffset={20}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <View style={styles.container}>
+                        <View style={styles.header}>
+                            <TouchableOpacity onPress={() => {}}>
+                                <Image
+                                    alt=""
+                                    source={
+                                        // assuming user.avatarUrl is like '@/assets/images/avatar.png'
                                         {
-                                            backgroundColor: colortheme.background,
-                                            color: colortheme.text,
-                                            paddingHorizontal: 20,
-                                            elevation: 40,
-                                        },
-                                    ]}
-                                    value={diary}
-                                    placeholder="Journal your day ..."
-                                    placeholderTextColor="gray"
-                                    onChangeText={(phrasetext) => setDiary(phrasetext)}
-                                    textAlignVertical="top"
+                                            uri: user?.avatarUrl,
+                                        }
+                                    }
+                                    style={styles.avatar}
                                 />
+                            </TouchableOpacity>
 
-                                <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
-                                    <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
-                                </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    // handle onPress
+                                }}
+                            >
+                                <FeatherIcon color="#1a2525" name="more-vertical" size={24} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.placeholder}>
+                            <View style={styles.placeholderInset}>
+                                <View style={styles.contentContainer}>
+                                    <TextInput
+                                        editable={true}
+                                        multiline={true}
+                                        style={[
+                                            styles.TextInput,
+                                            {
+                                                backgroundColor: colortheme.background,
+                                                color: colortheme.text,
+                                                paddingHorizontal: 20,
+                                                elevation: 40,
+                                            },
+                                        ]}
+                                        value={diary}
+                                        placeholder="Journal your day ..."
+                                        placeholderTextColor="gray"
+                                        onChangeText={(phrasetext) => setDiary(phrasetext)}
+                                        textAlignVertical="top"
+                                    />
+
+                                    <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
+                                        <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </AlertNotificationRoot>
         </SafeAreaView>
     );

@@ -135,7 +135,7 @@ export default function Settings() {
 
                             <View style={styles.rowWrapper}>
                                 <View style={styles.row}>
-                                    <Text style={styles.rowLabel}>Email Notifications</Text>
+                                    <Text style={styles.rowLabel}>Daily Remainders</Text>
 
                                     <View style={styles.rowSpacer} />
 

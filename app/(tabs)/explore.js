@@ -1,7 +1,19 @@
-import { Platform, StyleSheet, Dimensions, SafeAreaView, ScrollView, View, TouchableOpacity, TextInput, Text, Image } from "react-native";
+import {
+    Platform,
+    StyleSheet,
+    Dimensions,
+    SafeAreaView,
+    ScrollView,
+    View,
+    TouchableOpacity,
+    TextInput,
+    Text,
+    Image,
+    RefreshControl,
+} from "react-native";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
@@ -22,6 +34,7 @@ export default function Explore() {
     const [user, setUser] = useState(null);
     const [entry, setEntry] = useState([]);
     const [visible, setVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const stats = [
         { label: "Backup", value: "System" },
         { label: "Account Type", value: "Personal" },
@@ -64,7 +77,17 @@ export default function Explore() {
     useEffect(() => {
         getRecents(searchTerm);
     }, [searchTerm]);
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
 
+        // Simulating an API call or async task
+        setTimeout(() => {
+            initUser();
+            getEntry();
+            getRecents();
+            setRefreshing(false); // Stop refreshing after the task is complete
+        }, 2000); // Adjust the time according to your needs
+    }, []);
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
             <AlertNotificationRoot>
@@ -120,7 +143,17 @@ export default function Explore() {
                     </View>
                 </View>
 
-                <ScrollView>
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing} // Controls whether the spinner is active
+                            onRefresh={onRefresh} // Triggered when the user pulls to refresh
+                            tintColor="#39B54A" // Customize the color of the spinner
+                            // Customize the title text color
+                            colors={["#22C55E"]}
+                        />
+                    }
+                >
                     <View style={styles.content}>
                         <View style={styles.profile}>
                             <Text style={styles.sectionTitle}>Account</Text>
@@ -421,8 +454,10 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: "bold",
         lineHeight: 32,
-        color: "#121a26",
+        color: "gray",
         marginBottom: 6,
+        letterSpacing: 0.33,
+        fontWeight: "500",
     },
     profileSubtitle: {
         fontSize: 15,

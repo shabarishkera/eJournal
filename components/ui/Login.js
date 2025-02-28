@@ -1,10 +1,19 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Image, Text, TextInput, TouchableOpacity, StatusBar, useColorScheme } from "react-native";
+import {
+    StyleSheet,
+    View,
+    Image,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StatusBar,
+    useColorScheme,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import { Toast } from "expo-toast";
-import { createuser } from "../backend/database";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 export default function Login() {
@@ -29,64 +38,67 @@ export default function Login() {
                                 "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
                         })
                     );
+
             router.navigate("/(tabs)");
         } catch (error) {
             console.log("unable to create user", error);
         }
     };
     return (
-        <ThemedView style={[styles.container, { backgroundColor: colortheme.background }]}>
-            <StatusBar />
-            <View style={styles.logoView}>
-                <Image source={require("../../assets/images/notebook.png")} resizeMode="contain" style={styles.logo} />
-            </View>
-            <View style={styles.inputView}>
-                <TextInput
-                    value={email}
-                    style={styles.inputText}
-                    placeholder="Email"
-                    textContentType="emailAddress"
-                    placeholderTextColor="#AFAFAF"
-                    onChangeText={(email) => setEmail(email)}
-                />
-            </View>
-            <View style={styles.inputView}>
-                <TextInput
-                    value={password}
-                    style={styles.inputText}
-                    placeholder="Password"
-                    textContentType="password"
-                    secureTextEntry
-                    placeholderTextColor="#AFAFAF"
-                    onChangeText={(password) => setPassword(password)}
-                />
-            </View>
-            {!isLogin && (
+        <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={20} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <ThemedView style={[styles.container, { backgroundColor: colortheme.background }]}>
+                <StatusBar />
+                <View style={styles.logoView}>
+                    <Image source={require("../../assets/images/notebook.png")} resizeMode="contain" style={styles.logo} />
+                </View>
                 <View style={styles.inputView}>
                     <TextInput
-                        value={confirmPassword}
+                        value={email}
                         style={styles.inputText}
-                        placeholder=" Confirm Password"
+                        placeholder="Email"
+                        textContentType="emailAddress"
+                        placeholderTextColor="#AFAFAF"
+                        onChangeText={(email) => setEmail(email)}
+                    />
+                </View>
+                <View style={styles.inputView}>
+                    <TextInput
+                        value={password}
+                        style={styles.inputText}
+                        placeholder="Password"
                         textContentType="password"
                         secureTextEntry
                         placeholderTextColor="#AFAFAF"
-                        onChangeText={(password) => setConfirmPassword(password)}
+                        onChangeText={(password) => setPassword(password)}
                     />
                 </View>
-            )}
+                {!isLogin && (
+                    <View style={styles.inputView}>
+                        <TextInput
+                            value={confirmPassword}
+                            style={styles.inputText}
+                            placeholder=" Confirm Password"
+                            textContentType="password"
+                            secureTextEntry
+                            placeholderTextColor="#AFAFAF"
+                            onChangeText={(password) => setConfirmPassword(password)}
+                        />
+                    </View>
+                )}
 
-            <TouchableOpacity style={styles.loginBtn} onPress={handleOnPress}>
-                <Text style={styles.loginText}>{isLogin ? "LOGIN" : "SIGNUP"}</Text>
-            </TouchableOpacity>
-            <View style={styles.actions}>
-                <TouchableOpacity style={{ marginHorizontal: 15 }}>
-                    <ThemedText style={styles.forgot}>Forgot Password?</ThemedText>
+                <TouchableOpacity style={styles.loginBtn} onPress={handleOnPress}>
+                    <Text style={styles.loginText}>{isLogin ? "LOGIN" : "SIGNUP"}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setIslogin(!isLogin)}>
-                    <Text style={styles.singUp}>{isLogin ? "SignUp " : "Login"}</Text>
-                </TouchableOpacity>
-            </View>
-        </ThemedView>
+                <View style={styles.actions}>
+                    <TouchableOpacity style={{ marginHorizontal: 15 }}>
+                        <ThemedText style={styles.forgot}>Forgot Password?</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setIslogin(!isLogin)}>
+                        <Text style={styles.singUp}>{isLogin ? "SignUp " : "Login"}</Text>
+                    </TouchableOpacity>
+                </View>
+            </ThemedView>
+        </KeyboardAvoidingView>
     );
 }
 
