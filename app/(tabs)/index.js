@@ -104,7 +104,7 @@ export default function Home() {
                             return (
                                 <TouchableOpacity
                                     onPress={() => {
-                                        router.push(`/addOld?data=${selected}`);
+                                        router.push(`/editOld?data=${selected}`);
                                     }}
                                     style={[styles.item, { flex: 1, justifyContent: "center", alignItems: "center" }]}
                                 >

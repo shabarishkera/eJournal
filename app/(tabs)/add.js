@@ -67,7 +67,6 @@ export default function Add() {
         const res = await AsyncStorage.getItem("userToken");
 
         if (res) setUser(JSON.parse(res));
-        console.log(res);
     }
 
     // This useEffect ensures that diary data is fetched after the dateval is set

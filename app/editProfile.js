@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { useFocusEffect } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import ActionSheet from "react-native-actions-sheet";
 export default function editProfile(prop) {
     const router = useRouter();
     const [name, setName] = useState("");
@@ -12,7 +13,7 @@ export default function editProfile(prop) {
     const [bio, setBio] = useState("");
     const [avatar, setAvatar] = useState("");
     const [password, setPassword] = useState("");
-
+    const actionSheetRef = useRef(null);
     async function initDetails() {
         try {
             const res = await AsyncStorage.getItem("userToken");
@@ -52,7 +53,7 @@ export default function editProfile(prop) {
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images", "videos"],
+            mediaTypes: ["images"],
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
@@ -61,12 +62,33 @@ export default function editProfile(prop) {
         if (!result.canceled) {
             setAvatar(result.assets[0].uri);
         }
+        actionSheetRef.current?.hide();
+    };
+
+    const captureImage = async () => {
+        let result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setAvatar(result.assets[0].uri);
+        }
+
+        actionSheetRef.current?.hide();
     };
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
                 <Image style={styles.avatar} source={{ uri: avatar }} />
-                <TouchableOpacity style={styles.changeAvatarButton} onPress={pickImage}>
+                <TouchableOpacity
+                    style={styles.changeAvatarButton}
+                    onPress={() => {
+                        actionSheetRef.current?.show();
+                    }}
+                >
                     <Text style={styles.changeAvatarButtonText}>Change Avatar</Text>
                 </TouchableOpacity>
             </View>
@@ -80,6 +102,20 @@ export default function editProfile(prop) {
                 <TouchableOpacity style={styles.button} onPress={() => handleSubmit({ name, email, bio, avatar })}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
+                <ActionSheet ref={actionSheetRef}>
+                    {/* <Text style={styles.actionHeadding}></Text> */}
+                    <View style={styles.actionWrap}>
+                        <TouchableOpacity onPress={captureImage}>
+                            <Text style={styles.actionBtn}>Take a photo</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={pickImage}>
+                            <Text style={styles.actionBtn}>Pick Image</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                            <Text style={styles.actionBtn}>cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ActionSheet>
             </View>
         </View>
     );
@@ -139,5 +175,21 @@ const styles = StyleSheet.create({
     changeAvatarButtonText: {
         color: "#1E90FF",
         fontSize: 18,
+    },
+    actionBtn: {
+        textAlign: "center",
+        margin: 15,
+        fontSize: 20,
+    },
+    actionWrap: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    actionHeadding: {
+        textAlign: "center",
+        fontFamily: "roboto",
+        marginTop: 10,
     },
 });

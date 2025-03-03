@@ -11,9 +11,10 @@ import {
     Image,
     RefreshControl,
 } from "react-native";
+
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
@@ -35,12 +36,14 @@ export default function Explore() {
     const [entry, setEntry] = useState([]);
     const [visible, setVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+
     const stats = [
         { label: "Backup", value: "System" },
         { label: "Account Type", value: "Personal" },
         { label: "Entries", value: entry?.length },
     ];
     const [searchTerm, setSearchTerm] = useState("");
+    const [showTimeline, setShowTimeline] = useState(false);
     async function initUser() {
         try {
             const res = await AsyncStorage.getItem("userToken");
@@ -106,40 +109,34 @@ export default function Explore() {
                     </Text>
 
                     <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                // handle onPress
+                        <Menu
+                            visible={visible}
+                            anchor={<FeatherIcon onPress={() => setVisible(true)} name="more-vertical" size={24} />}
+                            onRequestClose={() => {
+                                setVisible(false);
                             }}
                         >
-                            <Menu
-                                visible={visible}
-                                anchor={<FeatherIcon onPress={() => setVisible(true)} name="more-vertical" size={24} />}
-                                onRequestClose={() => {
-                                    setVisible(false);
+                            <MenuItem
+                                onPress={() => {
+                                    router.push("/editProfile");
                                 }}
                             >
-                                <MenuItem
-                                    onPress={() => {
-                                        router.push("/editProfile");
-                                    }}
-                                >
-                                    Edit Profile
-                                </MenuItem>
-                                <MenuItem
-                                    onPress={() => {
-                                        Dialog.show({
-                                            type: ALERT_TYPE.WARNING,
-                                            title: "Log Out ?",
-                                            textBody: "You will be logged out of the app !",
-                                            button: "Ok",
-                                            onPressButton: () => {},
-                                        });
-                                    }}
-                                >
-                                    Log out
-                                </MenuItem>
-                            </Menu>
-                        </TouchableOpacity>
+                                Edit Profile
+                            </MenuItem>
+                            <MenuItem
+                                onPress={() => {
+                                    Dialog.show({
+                                        type: ALERT_TYPE.WARNING,
+                                        title: "Log Out ?",
+                                        textBody: "You will be logged out of the app !",
+                                        button: "Ok",
+                                        onPressButton: () => {},
+                                    });
+                                }}
+                            >
+                                Log out
+                            </MenuItem>
+                        </Menu>
                     </View>
                 </View>
 
@@ -213,9 +210,7 @@ export default function Explore() {
                                 style={{ flex: 1, paddingHorizontal: 6 }}
                             >
                                 <View style={styles.btn}>
-                                    <TouchableOpacity>
-                                        <Text style={styles.btnText}>Edit Profile</Text>
-                                    </TouchableOpacity>
+                                    <Text style={styles.btnText}>Edit Profile</Text>
                                 </View>
                             </TouchableOpacity>
 
@@ -226,9 +221,7 @@ export default function Explore() {
                                 style={{ flex: 1, paddingHorizontal: 6 }}
                             >
                                 <View style={styles.btn}>
-                                    <TouchableOpacity>
-                                        <Text style={styles.btnText}>Settings</Text>
-                                    </TouchableOpacity>
+                                    <Text style={styles.btnText}>Settings</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -298,16 +291,17 @@ export default function Explore() {
 
                     <View style={styles.list}>
                         <View style={styles.listHeader}>
-                            <Text style={styles.listTitle}>Your Graph</Text>
+                            <Text style={styles.listTitle}>Activity</Text>
 
                             <TouchableOpacity
                                 onPress={() => {
-                                    // handle onPress
+                                    setShowTimeline(!showTimeline);
                                 }}
                             >
-                                <Text style={styles.listAction}>hide</Text>
+                                <Text style={styles.listAction}>{showTimeline ? "Graph  View" : "Graph  View"}</Text>
                             </TouchableOpacity>
                         </View>
+
                         <ContributionGraph
                             values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
                             endDate={new Date()} // Set the end date to match your graph data
@@ -317,6 +311,8 @@ export default function Explore() {
                             chartConfig={chartConfig}
                             horizontal={true}
                         />
+
+                        {}
                     </View>
                 </ScrollView>
             </AlertNotificationRoot>
@@ -371,6 +367,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
         borderColor: "#e3e3e3",
     },
+
     headerAction: {
         marginTop: 20,
 

@@ -7,9 +7,11 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
+import { Rating, AirbnbRating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Settings() {
     const [user, setUser] = useState(null);
+    const ratingSheetRef = useRef(null);
     const placeholder = require("@/assets/images/profile.jpg");
     const router = useRouter();
     async function initUser() {
@@ -32,6 +34,7 @@ export default function Settings() {
     const [form, setForm] = useState({
         emailNotifications: true,
         pushNotifications: false,
+        rating: 1,
     });
     const actionSheetRef = useRef(null);
     useEffect(() => {
@@ -170,28 +173,22 @@ export default function Settings() {
                             <View style={[styles.rowWrapper, styles.rowFirst]}>
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // handle onPress
+                                        const email = "shabarishkera@gmail.com";
+                                        const subject = "Enqiry/contact";
+                                        const body = "";
+
+                                        // Create the mailto link
+                                        const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+                                            body
+                                        )}`;
+
+                                        // Open the email client
+                                        Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
                                     }}
                                     style={styles.row}
                                 >
                                     <Text style={styles.rowLabel}>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                const email = "shabarishkera@gmail.com";
-                                                const subject = "Enqiry/contact";
-                                                const body = "";
-
-                                                // Create the mailto link
-                                                const url = `mailto:${email}?subject=${encodeURIComponent(
-                                                    subject
-                                                )}&body=${encodeURIComponent(body)}`;
-
-                                                // Open the email client
-                                                Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
-                                            }}
-                                        >
-                                            <Text>Contact Us</Text>
-                                        </TouchableOpacity>
+                                        <Text>Contact Us</Text>
                                     </Text>
 
                                     <View style={styles.rowSpacer} />
@@ -203,28 +200,22 @@ export default function Settings() {
                             <View style={styles.rowWrapper}>
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // handle onPress
+                                        const email = "shabarishkera@gmail.com";
+                                        const subject = "Report bug";
+                                        const body = "";
+
+                                        // Create the mailto link
+                                        const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+                                            body
+                                        )}`;
+
+                                        // Open the email client
+                                        Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
                                     }}
                                     style={styles.row}
                                 >
                                     <Text style={styles.rowLabel}>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                const email = "shabarishkera@gmail.com";
-                                                const subject = "Report bug";
-                                                const body = "";
-
-                                                // Create the mailto link
-                                                const url = `mailto:${email}?subject=${encodeURIComponent(
-                                                    subject
-                                                )}&body=${encodeURIComponent(body)}`;
-
-                                                // Open the email client
-                                                Linking.openURL(url).catch((err) => console.error("Failed to open email client", err));
-                                            }}
-                                        >
-                                            <Text>Report Bug</Text>
-                                        </TouchableOpacity>
+                                        <Text>Report Bug</Text>
                                     </Text>
 
                                     <View style={styles.rowSpacer} />
@@ -236,18 +227,28 @@ export default function Settings() {
                             <View style={styles.rowWrapper}>
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // handle onPress
+                                        ratingSheetRef.current?.show();
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Rate in App Store</Text>
+                                    <Text style={styles.rowLabel}>Rate App</Text>
 
                                     <View style={styles.rowSpacer} />
-
-                                    <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
                                 </TouchableOpacity>
                             </View>
-
+                            <ActionSheet ref={ratingSheetRef}>
+                                <Rating
+                                    showRating
+                                    startingValue={form.rating}
+                                    onFinishRating={(rating) => {
+                                        setForm({ ...form, rating });
+                                    }}
+                                    style={{ paddingVertical: 30 }}
+                                />
+                                <TouchableOpacity onPress={() => ratingSheetRef.current?.hide()} style={{ borderRadius: 10, elevation: 0 }}>
+                                    <Text style={[styles.actionBtn]}>OK</Text>
+                                </TouchableOpacity>
+                            </ActionSheet>
                             <View style={[styles.rowWrapper, styles.rowLast]}>
                                 <TouchableOpacity
                                     onPress={() => {
