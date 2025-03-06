@@ -5,8 +5,8 @@ import { useColorScheme } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { editDiary, getDiaryByDate, addDiary } from "@/components/backend/database";
-import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from "react-native-alert-notification";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { ALERT_TYPE, AlertNotificationRoot, Toast } from "react-native-alert-notification";
+
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function addOld({ route, navigation }) {

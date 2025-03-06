@@ -1,19 +1,19 @@
-import { Image, StyleSheet, Platform, Text, Button, View, TouchableOpacity, ScrollView, Switch } from "react-native";
+import { Image, StyleSheet, Platform, Text, Button, View, TouchableOpacity, ScrollView, Switch, useColorScheme } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useState } from "react";
 import ActionSheet from "react-native-actions-sheet";
-import { Linking } from "react-native";
+import { Linking, ToastAndroid } from "react-native";
 import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
-import { Rating, AirbnbRating } from "react-native-ratings";
+import { Rating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Settings() {
     const [user, setUser] = useState(null);
     const ratingSheetRef = useRef(null);
     const placeholder = require("@/assets/images/profile.jpg");
     const router = useRouter();
+    const theme = useColorScheme();
     async function initUser() {
         try {
             const res = await AsyncStorage.getItem("userToken");
@@ -40,10 +40,21 @@ export default function Settings() {
     useEffect(() => {
         initUser();
     }, []);
-
+    const lightTheme = {
+        color: "#888",
+        contentBackground: "#f8f8f8",
+        backgroundColor: "#ffffff",
+        borderColor: "#f0f0f0",
+    };
+    const darkTheme = {
+        color: "#fff",
+        backgroundColor: "#000",
+        contentBackground: "#2d4150",
+        borderColor: "#888",
+    };
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
+            <SafeAreaView>
                 <View style={styles.header}>
                     <View style={styles.headerAction}>
                         <TouchableOpacity
@@ -55,7 +66,7 @@ export default function Settings() {
                         </TouchableOpacity>
                     </View>
 
-                    <Text numberOfLines={1} style={styles.headerTitle}>
+                    <Text numberOfLines={1} style={[styles.headerTitle, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
                         Settings
                     </Text>
 
@@ -79,7 +90,10 @@ export default function Settings() {
                                 onPress={() => {
                                     router.navigate("/(tabs)/explore");
                                 }}
-                                style={styles.profile}
+                                style={[
+                                    styles.profile,
+                                    { backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
+                                ]}
                             >
                                 <Image
                                     alt=""
@@ -88,7 +102,9 @@ export default function Settings() {
                                 />
 
                                 <View style={styles.profileBody}>
-                                    <Text style={styles.profileName}>{user?.name}</Text>
+                                    <Text style={[styles.profileName, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        {user?.name}
+                                    </Text>
 
                                     <Text style={styles.profileHandle}>{user?.email || "john@example.com"}</Text>
                                 </View>
@@ -98,18 +114,29 @@ export default function Settings() {
                         </View>
                     </View>
 
-                    <View style={styles.section}>
+                    <View style={[styles.section]}>
                         <Text style={styles.sectionTitle}>Preferences</Text>
 
-                        <View style={styles.sectionBody}>
-                            <View style={[styles.rowWrapper, styles.rowFirst]}>
+                        <View style={[styles.sectionBody]}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    styles.rowFirst,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         // handle onPress
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Language</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Language
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -119,14 +146,24 @@ export default function Settings() {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.rowWrapper}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         // handle onPress
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Location</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Location
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -136,9 +173,19 @@ export default function Settings() {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.rowWrapper}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <View style={styles.row}>
-                                    <Text style={styles.rowLabel}>Daily Remainders</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Daily Remainders
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -150,9 +197,20 @@ export default function Settings() {
                                 </View>
                             </View>
 
-                            <View style={[styles.rowWrapper, styles.rowLast]}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    styles.rowLast,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <View style={styles.row}>
-                                    <Text style={styles.rowLabel}>Push Notifications</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Push Notifications
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -170,7 +228,16 @@ export default function Settings() {
                         <Text style={styles.sectionTitle}>Resources</Text>
 
                         <View style={styles.sectionBody}>
-                            <View style={[styles.rowWrapper, styles.rowFirst]}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    styles.rowFirst,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         const email = "shabarishkera@gmail.com";
@@ -187,7 +254,7 @@ export default function Settings() {
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
                                         <Text>Contact Us</Text>
                                     </Text>
 
@@ -197,7 +264,15 @@ export default function Settings() {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.rowWrapper}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         const email = "shabarishkera@gmail.com";
@@ -214,7 +289,7 @@ export default function Settings() {
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
                                         <Text>Report Bug</Text>
                                     </Text>
 
@@ -224,14 +299,24 @@ export default function Settings() {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.rowWrapper}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         ratingSheetRef.current?.show();
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Rate App</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Rate App
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
                                 </TouchableOpacity>
@@ -249,14 +334,25 @@ export default function Settings() {
                                     <Text style={[styles.actionBtn]}>OK</Text>
                                 </TouchableOpacity>
                             </ActionSheet>
-                            <View style={[styles.rowWrapper, styles.rowLast]}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    styles.rowLast,
+                                    {
+                                        backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.borderColor,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // handle onPress
+                                        ToastAndroid.show("Terms is not available right now !", ToastAndroid.SHORT);
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={styles.rowLabel}>Terms and Privacy</Text>
+                                    <Text style={[styles.rowLabel, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Terms and Privacy
+                                    </Text>
 
                                     <View style={styles.rowSpacer} />
 
@@ -268,7 +364,18 @@ export default function Settings() {
 
                     <View style={styles.section}>
                         <View style={styles.sectionBody}>
-                            <View style={[styles.rowWrapper, styles.rowFirst, styles.rowLast, { alignItems: "center" }]}>
+                            <View
+                                style={[
+                                    styles.rowWrapper,
+                                    styles.rowFirst,
+                                    styles.rowLast,
+                                    {
+                                        alignItems: "center",
+                                        backgroundColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        borderColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                    },
+                                ]}
+                            >
                                 <TouchableOpacity
                                     onPress={() => {
                                         // handle onPress
@@ -276,21 +383,41 @@ export default function Settings() {
                                     }}
                                     style={styles.row}
                                 >
-                                    <Text style={[styles.rowLabel, styles.rowLabelLogout]}>Log Out</Text>
+                                    <Text
+                                        style={[
+                                            styles.rowLabel,
+                                            styles.rowLabelLogout,
+                                            {
+                                                backgroundColor:
+                                                    theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            },
+                                        ]}
+                                    >
+                                        Log Out
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
 
                     <Text style={styles.contentFooter}>App Version 1.0</Text>
-                    <ActionSheet ref={actionSheetRef}>
-                        <Text style={styles.actionHeadding}>Are You Sure To log out ?</Text>
+                    <ActionSheet
+                        ref={actionSheetRef}
+                        containerStyle={{
+                            backgroundColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                        }}
+                    >
+                        <Text style={[styles.actionHeadding, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                            Are You Sure To log out ?
+                        </Text>
                         <View style={styles.actionWrap}>
                             <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
                                 <Text style={styles.actionBtn}>ok</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                                <Text style={styles.actionBtn}>cancel</Text>
+                                <Text style={[styles.actionBtn, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                                    cancel
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </ActionSheet>
@@ -379,7 +506,7 @@ const styles = StyleSheet.create({
     /** Profile */
     profile: {
         padding: 12,
-        backgroundColor: "#fff",
+
         borderRadius: 12,
         flexDirection: "row",
         alignItems: "center",
@@ -418,7 +545,6 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
         backgroundColor: "#fff",
         borderTopWidth: 1,
-        borderColor: "#f0f0f0",
     },
     rowFirst: {
         borderTopLeftRadius: 12,

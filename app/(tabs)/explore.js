@@ -1,5 +1,4 @@
 import {
-    Platform,
     StyleSheet,
     Dimensions,
     SafeAreaView,
@@ -13,14 +12,14 @@ import {
 } from "react-native";
 
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { Menu, MenuItem } from "react-native-material-menu";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
-import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from "react-native-alert-notification";
+import { AlertNotificationRoot } from "react-native-alert-notification";
 import { ContributionGraph } from "react-native-chart-kit";
-
+import ActionSheet from "react-native-actions-sheet";
 const today = new Date();
 
 let date = new Date(today);
@@ -36,6 +35,7 @@ export default function Explore() {
     const [entry, setEntry] = useState([]);
     const [visible, setVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const actionSheetRef = useRef(null);
 
     const stats = [
         { label: "Backup", value: "System" },
@@ -125,13 +125,7 @@ export default function Explore() {
                             </MenuItem>
                             <MenuItem
                                 onPress={() => {
-                                    Dialog.show({
-                                        type: ALERT_TYPE.WARNING,
-                                        title: "Log Out ?",
-                                        textBody: "You will be logged out of the app !",
-                                        button: "Ok",
-                                        onPressButton: () => {},
-                                    });
+                                    actionSheetRef.current?.show();
                                 }}
                             >
                                 Log out
@@ -266,11 +260,11 @@ export default function Explore() {
                                     <View style={styles.card}>
                                         <View style={styles.cardTop}>
                                             <View style={styles.cardIcon}>
-                                                <FeatherIcon color="#000" name={"home"} size={24} />
+                                                <FeatherIcon color="#000" name={"book"} size={24} />
                                             </View>
 
                                             <View style={styles.cardBody}>
-                                                <Text style={styles.cardTitle}>{dateinfo}</Text>
+                                                <Text style={styles.cardTitle}>{formatDate(dateinfo) || dateinfo}</Text>
 
                                                 <Text numberOfLines={1} style={styles.cardSubtitle}>
                                                     {data}
@@ -315,6 +309,17 @@ export default function Explore() {
                         {}
                     </View>
                 </ScrollView>
+                <ActionSheet ref={actionSheetRef}>
+                    <Text style={styles.actionHeadding}>Are You Sure To log out ?</Text>
+                    <View style={styles.actionWrap}>
+                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                            <Text style={styles.actionBtnCnl}>ok</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                            <Text style={styles.actionBtn}>cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ActionSheet>
             </AlertNotificationRoot>
         </SafeAreaView>
     );
@@ -330,6 +335,30 @@ const chartConfig = {
         borderRadius: 16,
     },
 };
+function formatDate(dateString) {
+    const date = new Date(dateString); // Parse the input date string
+    const day = date.getDate(); // Get the day of the month
+    const month = date.toLocaleString("default", { month: "long" }); // Get the full month name
+    const year = date.getFullYear(); // Get the full year
+
+    // Function to get the day suffix (st, nd, rd, th)
+    const getDaySuffix = (day) => {
+        if (day > 3 && day < 21) return "th"; // 11th, 12th, 13th are special
+        switch (day % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
+    };
+
+    // Format the date string in '10th July 2045' format
+    return `${day}${getDaySuffix(day)} ${month} ${year}`;
+}
 const prepareDataForContributionGraph = (dates) => {
     let graphData = [];
 
@@ -366,6 +395,28 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderBottomWidth: 0,
         borderColor: "#e3e3e3",
+    },
+    actionBtn: {
+        textAlign: "center",
+        margin: 10,
+        fontSize: 16,
+    },
+    actionBtnCnl: {
+        color: "red",
+        textAlign: "center",
+        margin: 15,
+        fontSize: 16,
+    },
+    actionWrap: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    actionHeadding: {
+        textAlign: "center",
+        fontFamily: "roboto",
+        marginTop: 10,
     },
 
     headerAction: {
@@ -654,6 +705,7 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         color: "#778599",
         textOverflow: "elipsis",
+        maxWidth: 180,
     },
     cardFooter: {
         flexDirection: "row",

@@ -1,20 +1,19 @@
-import { router, Tabs } from "expo-router";
-import React, { useLayoutEffect, useState, useEffect } from "react";
+import { Tabs } from "expo-router";
+import React, { useLayoutEffect, useState } from "react";
 import { Platform } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { HapticTab } from "@/components/HapticTab";
 import Feather from "@expo/vector-icons/Feather";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, Text } from "react-native";
-import { ThemedText } from "@/components/ThemedText";
+
 import Login from "@/components/ui/Login";
 import { init } from "@/components/backend/database";
 import Foundation from "@expo/vector-icons/Foundation";
-import { fetchalldiary } from "@/components/backend/database";
+
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
@@ -66,6 +65,7 @@ export default function TabLayout() {
                 tabPress: (e) => {
                     // You can also do something else when a tab is pressed if
                     // ruter.push(e.target.name);
+                    //  Haptics.selectionAsync();
                 },
             }}
             screenOptions={{

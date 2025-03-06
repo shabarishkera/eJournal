@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 const database = SQLite.openDatabaseSync("diaryDatabase");
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export async function init() {
     try {
         // Create the diarydata table using execAsync
@@ -51,19 +51,19 @@ export async function fetchalldiary() {
 
 export async function addDiary(date, year, day, data) {
     await database
-        .runAsync(`INSERT INTO diarydata values('${date}',${year},${day},"${data}") `)
+        .runAsync("INSERT INTO diarydata (dateinfo ,year, day,data) VALUES(?,?,?,?)", date, year, day, data)
         .then(() => {
-            console.log("data saved");
-            return "Ok";
+            console.log("data added successfully");
         })
         .catch((err) => {
+            console.log(err);
             throw err;
         });
     return "data saved successfully";
 }
 export async function editDiary(date, year, day, data) {
     await database
-        .runAsync(`UPDATE diarydata SET data="${data}" WHERE dateinfo='${date}' `)
+        .runAsync(`UPDATE diarydata SET data=? WHERE dateinfo=?`, data, date)
         .then(() => {
             console.log("data updated");
             return "Ok";

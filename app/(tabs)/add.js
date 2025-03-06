@@ -11,14 +11,15 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import React, { useState, useEffect } from "react";
 import { addDiary, getDiaryByDate, editDiary } from "@/components/backend/database";
 import { Colors } from "@/constants/Colors";
 import { useFocusEffect, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from "react-native-alert-notification";
+import { AlertNotificationRoot } from "react-native-alert-notification";
 export default function Add() {
     const theme = useColorScheme();
     const colortheme = Colors[theme];
@@ -87,13 +88,11 @@ export default function Add() {
                 } else {
                     const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
                 }
-                Toast.show({
-                    type: ALERT_TYPE.SUCCESS,
-                    title: "Success",
-                    textBody: "Data is added !",
-                });
+
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             } catch (error) {
                 console.log("Error occured ...!");
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             } finally {
                 setIsLoading(false);
                 router.navigate("/(tabs)");

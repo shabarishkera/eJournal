@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import { useFocusEffect } from "expo-router";
+
 import { useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import ActionSheet from "react-native-actions-sheet";
+
 export default function editProfile(prop) {
     const router = useRouter();
     const [name, setName] = useState("");
@@ -34,6 +35,7 @@ export default function editProfile(prop) {
             console.error("Error retrieving user data", error);
         }
     }
+
     useEffect(() => {
         initDetails();
     }, []);
@@ -112,7 +114,7 @@ export default function editProfile(prop) {
                             <Text style={styles.actionBtn}>Pick Image</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                            <Text style={styles.actionBtn}>cancel</Text>
+                            <Text style={styles.actionBtnCnl}>cancel</Text>
                         </TouchableOpacity>
                     </View>
                 </ActionSheet>
@@ -179,7 +181,13 @@ const styles = StyleSheet.create({
     actionBtn: {
         textAlign: "center",
         margin: 15,
-        fontSize: 20,
+        fontSize: 16,
+    },
+    actionBtnCnl: {
+        color: "red",
+        textAlign: "center",
+        margin: 15,
+        fontSize: 16,
     },
     actionWrap: {
         display: "flex",

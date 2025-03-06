@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { fetchalldiary } from "@/components/backend/database";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Agenda } from "react-native-calendars";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Text, View, TouchableOpacity, StyleSheet, useColorScheme } from "react-native";
+import { Text, View, TouchableOpacity, StyleSheet, useColorScheme, ToastAndroid } from "react-native";
 
 export default function Home() {
     const theme = useColorScheme();
@@ -58,7 +58,7 @@ export default function Home() {
 
     const darkTheme = {
         backgroundColor: "#121212",
-        calendarBackground: "#1d1d1d",
+        calendarBackground: "#121212",
         textSectionTitleColor: "#2d4150",
         todayTextColor: "#00adf5",
         dayTextColor: "#ffffff",
@@ -68,6 +68,12 @@ export default function Home() {
         selectedDayTextColor: "#ffffff",
         todayButtonTextColor: "#00adf5",
         arrowColor: "#00adf5",
+        reservationsBackgroundColor: "#121212",
+        // "stylesheet.agenda.main": {
+        //     reservations: {
+        //         backgroundColor: "#2d4150",
+        //     },
+        // },
     };
 
     return (
@@ -93,20 +99,21 @@ export default function Home() {
                         //     );
                         // }}
                         loadItemsForMonth={(day) => {}}
-                        renderEmptyDate={() => {
-                            return (
-                                <View style={styles.item}>
-                                    <Text style={styles.itemText}>אין אירועים ליום זה.</Text>
-                                </View>
-                            );
-                        }}
                         renderEmptyData={(item) => {
                             return (
                                 <TouchableOpacity
                                     onPress={() => {
                                         router.push(`/editOld?data=${selected}`);
                                     }}
-                                    style={[styles.item, { flex: 1, justifyContent: "center", alignItems: "center" }]}
+                                    style={[
+                                        styles.itemEmtpy,
+                                        {
+                                            flex: 1,
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.calendarBackground,
+                                        },
+                                    ]}
                                 >
                                     <Text style={styles.itemText}>No Data Avalialble...Click to add ..</Text>
                                 </TouchableOpacity>
@@ -119,15 +126,23 @@ export default function Home() {
                                 onPress={() => {
                                     router.push(`/editOld?data=${item.date}`, {});
                                 }}
-                                style={[styles.item, {}]}
+                                style={[
+                                    styles.item,
+                                    {
+                                        justifyContent: "center",
+                                        alignItems: "center",
+
+                                        backgroundColor: theme === "dark" ? darkTheme.textSectionTitleColor : lightTheme.calendarBackground,
+                                    },
+                                ]}
                             >
-                                <Text style={styles.itemText}>{item.name}</Text>
+                                <Text style={[styles.itemText, { color: theme === "dark" ? "#fff" : "#888" }]}>{item.name}</Text>
                             </TouchableOpacity>
                         )}
                         onDayPress={(day) => {
                             setSelected(day.dateString);
                         }}
-                        theme={lightTheme}
+                        theme={theme === "dark" ? darkTheme : lightTheme}
                     />
                 </View>
             </SafeAreaView>
@@ -140,12 +155,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     item: {
-        backgroundColor: "white",
-
         borderRadius: 5,
         padding: 10,
         marginRight: 10,
         marginTop: 17,
+    },
+    itemEmtpy: {
+        padding: 10,
     },
     itemText: {
         color: "#888",
