@@ -31,7 +31,18 @@ export default function addOld({ route, navigation }) {
             // Set the diary entry if available
         }
     };
-
+    const lightTheme = {
+        color: "#888",
+        contentBackground: "#f8f8f8",
+        backgroundColor: "#ffffff",
+        borderColor: "#f0f0f0",
+    };
+    const darkTheme = {
+        color: "#fff",
+        backgroundColor: "#000",
+        contentBackground: "#2d4150",
+        borderColor: "#888",
+    };
     useFocusEffect(
         React.useCallback(() => {
             setDate(data);
@@ -85,7 +96,13 @@ export default function addOld({ route, navigation }) {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1, height: "100%" }}>
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                    height: "100%",
+                    backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                }}
+            >
                 <AlertNotificationRoot>
                     <KeyboardAvoidingView
                         style={{ flex: 1 }}
@@ -112,12 +129,21 @@ export default function addOld({ route, navigation }) {
                                         // handle onPress
                                     }}
                                 >
-                                    <FeatherIcon color="#1a2525" name="more-vertical" size={24} />
+                                    <FeatherIcon
+                                        color={theme == "dark" ? darkTheme.color : lightTheme.color}
+                                        name="more-vertical"
+                                        size={24}
+                                    />
                                 </TouchableOpacity>
                             </View>
 
                             <View style={styles.placeholder}>
-                                <View style={styles.placeholderInset}>
+                                <View
+                                    style={[
+                                        styles.placeholderInset,
+                                        { borderColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
+                                    ]}
+                                >
                                     <View style={styles.contentContainer}>
                                         <TextInput
                                             editable={true}
@@ -125,7 +151,8 @@ export default function addOld({ route, navigation }) {
                                             style={[
                                                 styles.TextInput,
                                                 {
-                                                    backgroundColor: colortheme.background,
+                                                    backgroundColor:
+                                                        theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
                                                     color: colortheme.text,
                                                     paddingHorizontal: 20,
                                                     elevation: 40,
@@ -138,8 +165,22 @@ export default function addOld({ route, navigation }) {
                                             textAlignVertical="top"
                                         />
 
-                                        <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
-                                            <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
+                                        <TouchableOpacity
+                                            disabled={isloading}
+                                            onPress={handleSave}
+                                            style={[
+                                                styles.saveBtn,
+                                                {
+                                                    backgroundColor:
+                                                        theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                                },
+                                            ]}
+                                        >
+                                            <Text
+                                                style={[styles.saveText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}
+                                            >
+                                                {isEdit ? "UPDATE" : "ADD"}
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>

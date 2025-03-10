@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, useColorScheme } from "react-native";
 
 import { useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,6 +15,7 @@ export default function editProfile(prop) {
     const [avatar, setAvatar] = useState("");
     const [password, setPassword] = useState("");
     const actionSheetRef = useRef(null);
+    const theme = useColorScheme();
     async function initDetails() {
         try {
             const res = await AsyncStorage.getItem("userToken");
@@ -52,6 +53,18 @@ export default function editProfile(prop) {
         );
         router.navigate("(tabs)/explore");
     };
+    const lightTheme = {
+        color: "#888",
+        contentBackground: "#f8f8f8",
+        backgroundColor: "#ffffff",
+        borderColor: "#f0f0f0",
+    };
+    const darkTheme = {
+        color: "#fff",
+        backgroundColor: "#000",
+        contentBackground: "#2d4150",
+        borderColor: "#888",
+    };
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -82,7 +95,7 @@ export default function editProfile(prop) {
         actionSheetRef.current?.hide();
     };
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }]}>
             <View style={styles.avatarContainer}>
                 <Image style={styles.avatar} source={{ uri: avatar }} />
                 <TouchableOpacity
@@ -95,23 +108,53 @@ export default function editProfile(prop) {
                 </TouchableOpacity>
             </View>
             <View style={styles.form}>
-                <Text style={styles.label}>Name</Text>
-                <TextInput style={styles.input} placeholder="Enter Name" value={name} onChangeText={setName} />
-                <Text style={styles.label}>Email</Text>
-                <TextInput style={styles.input} placeholder="Enter Email" value={email} onChangeText={setEmail} />
-                <Text style={styles.label}>Bio</Text>
-                <TextInput style={styles.input} placeholder="Enter Bio" value={bio} onChangeText={setBio} />
-                <TouchableOpacity style={styles.button} onPress={() => handleSubmit({ name, email, bio, avatar })}>
-                    <Text style={styles.buttonText}>Submit</Text>
+                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Name</Text>
+                <TextInput
+                    style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                    placeholder="Enter Name"
+                    value={name}
+                    onChangeText={setName}
+                />
+                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Email</Text>
+                <TextInput
+                    style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                    placeholder="Enter Email"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Bio</Text>
+                <TextInput
+                    style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                    placeholder="Enter Bio"
+                    value={bio}
+                    onChangeText={setBio}
+                />
+                <TouchableOpacity
+                    style={[
+                        styles.button,
+                        {
+                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                        },
+                    ]}
+                    onPress={() => handleSubmit({ name, email, bio, avatar })}
+                >
+                    <Text style={[styles.buttonText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>Submit</Text>
                 </TouchableOpacity>
-                <ActionSheet ref={actionSheetRef}>
+                <ActionSheet
+                    ref={actionSheetRef}
+                    containerStyle={{ backgroundColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
+                >
                     {/* <Text style={styles.actionHeadding}></Text> */}
                     <View style={styles.actionWrap}>
                         <TouchableOpacity onPress={captureImage}>
-                            <Text style={styles.actionBtn}>Take a photo</Text>
+                            <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                Take a photo
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={pickImage}>
-                            <Text style={styles.actionBtn}>Pick Image</Text>
+                            <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                Pick Image
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
                             <Text style={styles.actionBtnCnl}>cancel</Text>

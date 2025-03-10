@@ -29,7 +29,8 @@ export async function init() {
     }
 }
 
-export function createuser(email, username, password) {
+export function createuser(email, username, password, bio, avatarUrl) {
+    console.log(email, username, bio, avatarUrl, password);
     try {
         database
             .runAsync(`INSERT INTO user (email,name,password) VALUES (?, ?, ?)`, email, username, password)

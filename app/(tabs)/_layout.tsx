@@ -23,12 +23,13 @@ export default function TabLayout() {
     const [userTocken, setUserTocken] = useState<String | null>(null);
     const [loading, setIsLoading] = useState<Boolean>(true);
     const ruter = useRouter();
+    const theme = useColorScheme();
 
     useLayoutEffect(() => {
         (async () => {
             try {
                 init();
-
+                //AsyncStorage.removeItem("userToken");
                 const tocken = await AsyncStorage.getItem("userToken");
                 setIsLoading(false);
 
@@ -54,7 +55,7 @@ export default function TabLayout() {
         return (
             <SafeAreaProvider>
                 <SafeAreaView style={{ flex: 1 }}>
-                    <Login />
+                    <Login setUserTocken={setUserTocken} />
                 </SafeAreaView>
             </SafeAreaProvider>
         );
@@ -69,9 +70,9 @@ export default function TabLayout() {
                 },
             }}
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+                tabBarActiveTintColor: theme === "dark" ? "#0a7ea4" : "#0a7ea4",
                 headerShown: false,
-
+                tabBarInactiveTintColor: theme === "dark" ? "gray" : "black",
                 tabBarButton: HapticTab,
                 tabBarBackground: TabBarBackground,
                 tabBarStyle: Platform.select({

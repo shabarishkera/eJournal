@@ -10,94 +10,159 @@ import {
     useColorScheme,
     KeyboardAvoidingView,
     Platform,
+    SafeAreaView,
+    Alert,
+    ScrollView,
 } from "react-native";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
-
+import { Feather as FeatherIcon } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-export default function Login() {
+import { createuser } from "../backend/database";
+export default function Login({ setUserTocken }) {
     const [isLogin, setIslogin] = useState(true);
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+
     const [colortheme] = useColorScheme();
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const router = useRouter();
+
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        bio: "Update your bio",
+        avatarUrl: null,
+    });
     const handleOnPress = async () => {
         try {
-            if (!isLogin)
-                if (email && password === confirmPassword)
+            if (!isLogin) {
+                if (form.email && form.name && form.password === form.confirmPassword) {
+                    createuser(form.email, form.name, form.password, form.bio, form.avatarUrl);
                     AsyncStorage.setItem(
                         "userToken",
                         JSON.stringify({
-                            email: email,
-                            password: password,
-                            name: "John Doe",
-                            bio: "Enter Something About You Here ..",
-                            avatarUrl:
-                                "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80",
-                        })
+                            email: form.email,
+                            password: form.password,
+                            name: form.name,
+                            bio: "add you bio...",
+                            avatarUrl: form.avatarUrl,
+                        }),
+                        async () => {
+                            const res = await AsyncStorage.getItem("userToken");
+                            setUserTocken(res);
+                        }
                     );
-
-            router.navigate("/(tabs)");
+                } else {
+                    Alert.alert("Invalid Parameters", "Check your email or password ");
+                }
+            }
         } catch (error) {
             console.log("unable to create user", error);
         }
     };
     return (
-        <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={20} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-            <ThemedView style={[styles.container, { backgroundColor: colortheme.background }]}>
-                <StatusBar />
-                <View style={styles.logoView}>
-                    <Image source={require("../../assets/images/notebook.png")} resizeMode="contain" style={styles.logo} />
-                </View>
-                <View style={styles.inputView}>
-                    <TextInput
-                        value={email}
-                        style={styles.inputText}
-                        placeholder="Email"
-                        textContentType="emailAddress"
-                        placeholderTextColor="#AFAFAF"
-                        onChangeText={(email) => setEmail(email)}
-                    />
-                </View>
-                <View style={styles.inputView}>
-                    <TextInput
-                        value={password}
-                        style={styles.inputText}
-                        placeholder="Password"
-                        textContentType="password"
-                        secureTextEntry
-                        placeholderTextColor="#AFAFAF"
-                        onChangeText={(password) => setPassword(password)}
-                    />
-                </View>
-                {!isLogin && (
-                    <View style={styles.inputView}>
-                        <TextInput
-                            value={confirmPassword}
-                            style={styles.inputText}
-                            placeholder=" Confirm Password"
-                            textContentType="password"
-                            secureTextEntry
-                            placeholderTextColor="#AFAFAF"
-                            onChangeText={(password) => setConfirmPassword(password)}
-                        />
+        <KeyboardAvoidingView style={[{ flex: 1 }]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
+                <View style={styles.container}>
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // handle onPress
+                            }}
+                            style={styles.headerBack}
+                        >
+                            <FeatherIcon color="#1D2A32" name="chevron-left" size={30} />
+                        </TouchableOpacity>
                     </View>
-                )}
 
-                <TouchableOpacity style={styles.loginBtn} onPress={handleOnPress}>
-                    <Text style={styles.loginText}>{isLogin ? "LOGIN" : "SIGNUP"}</Text>
-                </TouchableOpacity>
-                <View style={styles.actions}>
-                    <TouchableOpacity style={{ marginHorizontal: 15 }}>
-                        <ThemedText style={styles.forgot}>Forgot Password?</ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setIslogin(!isLogin)}>
-                        <Text style={styles.singUp}>{isLogin ? "SignUp " : "Login"}</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.title}>Let's Get Started!</Text>
+
+                    <Text style={styles.subtitle}>Fill in the fields below to get started with your credentials.</Text>
+                    <ScrollView>
+                        <View style={[styles.form]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                            <View style={styles.input}>
+                                <Text style={styles.inputLabel}>Full Name</Text>
+
+                                <TextInput
+                                    clearButtonMode="while-editing"
+                                    onChangeText={(name) => setForm({ ...form, name })}
+                                    placeholder="John Doe"
+                                    style={styles.inputControl}
+                                    value={form.name}
+                                />
+                            </View>
+
+                            <View style={styles.input}>
+                                <Text style={styles.inputLabel}>Email Address</Text>
+
+                                <TextInput
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    clearButtonMode="while-editing"
+                                    keyboardType="email-address"
+                                    onChangeText={(email) => setForm({ ...form, email })}
+                                    placeholder="john@example.com"
+                                    style={styles.inputControl}
+                                    value={form.email}
+                                />
+                            </View>
+
+                            <View style={styles.input}>
+                                <Text style={styles.inputLabel}>Password</Text>
+
+                                <TextInput
+                                    autoCorrect={false}
+                                    clearButtonMode="while-editing"
+                                    onChangeText={(password) => setForm({ ...form, password })}
+                                    placeholder="********"
+                                    style={styles.inputControl}
+                                    secureTextEntry={true}
+                                    value={form.password}
+                                />
+                            </View>
+
+                            {!isLogin && (
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Confirm Password</Text>
+
+                                    <TextInput
+                                        autoCorrect={false}
+                                        clearButtonMode="while-editing"
+                                        onChangeText={(confirmPassword) => setForm({ ...form, confirmPassword })}
+                                        placeholder="********"
+                                        style={styles.inputControl}
+                                        secureTextEntry={true}
+                                        value={form.confirmPassword}
+                                    />
+                                </View>
+                            )}
+
+                            <View style={styles.formAction}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleOnPress();
+                                    }}
+                                    style={styles.btn}
+                                >
+                                    <Text style={styles.btnText}>{isLogin ? "Login" : "Get Started"}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </ScrollView>
                 </View>
-            </ThemedView>
+
+                <TouchableOpacity
+                    onPress={() => {
+                        setIslogin(!isLogin);
+                    }}
+                >
+                    <Text style={styles.formFooter}>
+                        {isLogin ? "Dont have an account?" : "Already have an account?"}{" "}
+                        <Text style={{ textDecorationLine: "underline" }}>{isLogin ? "Sign up" : "Sing in"}</Text>
+                    </Text>
+                </TouchableOpacity>
+            </SafeAreaView>
         </KeyboardAvoidingView>
     );
 }
@@ -105,62 +170,87 @@ export default function Login() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center",
+        paddingHorizontal: 24,
+        paddingBottom: 16,
     },
-    logo: {
-        fontWeight: "bold",
-        fontSize: 50,
-        color: "#fb5b5a",
-        marginBottom: 40,
-        width: 250,
-        height: 100,
+    title: {
+        fontSize: 31,
+        fontWeight: "700",
+        color: "#1D2A32",
+        marginBottom: 6,
     },
-    inputView: {
-        width: "80%",
-        backgroundColor: "#EAEAEA",
-        borderRadius: 25,
-        height: 50,
-        marginBottom: 20,
-        justifyContent: "center",
-        padding: 20,
-    },
-    inputText: {
-        height: 50,
-        color: "#777777",
-        fontWeight: "800",
-    },
-    singUp: {
-        color: "#39B54A",
+    subtitle: {
+        fontSize: 15,
         fontWeight: "500",
+        color: "#929292",
     },
-    loginBtn: {
-        width: "80%",
-        backgroundColor: "#39B54A",
-        borderRadius: 25,
+    /** Header */
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 12,
+    },
+    headerBack: {
+        padding: 8,
+        paddingTop: 0,
+        position: "relative",
+        marginLeft: -16,
+    },
+    /** Form */
+    form: {
+        marginTop: 24,
+    },
+    formAction: {
+        marginTop: 4,
+        marginBottom: 16,
+    },
+    formFooter: {
+        paddingVertical: 24,
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#222",
+        textAlign: "center",
+        letterSpacing: 0.15,
+    },
+    /** Input */
+    input: {
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 17,
+        fontWeight: "600",
+        color: "#222",
+        marginBottom: 8,
+    },
+    inputControl: {
         height: 50,
+        backgroundColor: "#fff",
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        fontSize: 15,
+        fontWeight: "500",
+        color: "#222",
+        borderWidth: 1,
+        borderColor: "#C9D3DB",
+        borderStyle: "solid",
+    },
+    /** Button */
+    btn: {
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: 20,
-        marginBottom: 10,
+        borderRadius: 30,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderWidth: 1,
+        backgroundColor: "#075eec",
+        borderColor: "#075eec",
     },
-    loginText: {
-        color: "#ffffff",
-        fontWeight: "800",
-    },
-    actions: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-    },
-    logoView: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        marginBottom: 15,
-        marginTop: 0,
-    },
-    forgot: {
-        fontWeight: "normal",
+    btnText: {
+        fontSize: 18,
+        lineHeight: 26,
+        fontWeight: "600",
+        color: "#fff",
     },
 });

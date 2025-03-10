@@ -30,7 +30,18 @@ export default function Add() {
     const [isloading, setIsLoading] = useState(false);
     const [user, setUser] = useState(null);
     //only happens in case for the  // State for holding the diary text
-
+    const lightTheme = {
+        color: "#888",
+        contentBackground: "#f8f8f8",
+        backgroundColor: "#ffffff",
+        borderColor: "#f0f0f0",
+    };
+    const darkTheme = {
+        color: "#fff",
+        backgroundColor: "#000",
+        contentBackground: "#2d4150",
+        borderColor: "#888",
+    };
     // Format the date as 'YYYY-MM-DD'
     const formatDate = (date) => {
         const year = date.getFullYear();
@@ -103,68 +114,78 @@ export default function Add() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-            <AlertNotificationRoot>
-                <KeyboardAvoidingView
-                    style={{ flex: 1 }}
-                    keyboardVerticalOffset={20}
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                >
-                    <View style={styles.container}>
-                        <View style={styles.header}>
-                            <TouchableOpacity onPress={() => {}}>
-                                <Image
-                                    alt=""
-                                    source={
-                                        // assuming user.avatarUrl is like '@/assets/images/avatar.png'
-                                        {
-                                            uri: user?.avatarUrl,
-                                        }
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={20} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                <View style={[styles.container]}>
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => {}}>
+                            <Image
+                                alt=""
+                                source={
+                                    // assuming user.avatarUrl is like '@/assets/images/avatar.png'
+                                    {
+                                        uri: user?.avatarUrl,
                                     }
-                                    style={styles.avatar}
+                                }
+                                style={styles.avatar}
+                            />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                // handle onPress
+                            }}
+                        >
+                            <FeatherIcon color={theme == "dark" ? darkTheme.color : lightTheme.color} name="more-vertical" size={24} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.placeholder}>
+                        <View
+                            style={[
+                                styles.placeholderInset,
+                                { borderColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
+                            ]}
+                        >
+                            <View style={[styles.contentContainer]}>
+                                <TextInput
+                                    editable={true}
+                                    multiline={true}
+                                    style={[
+                                        styles.TextInput,
+                                        {
+                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            color: colortheme.text,
+                                            paddingHorizontal: 20,
+                                            elevation: 40,
+                                        },
+                                    ]}
+                                    value={diary}
+                                    placeholder="Journal your day ..."
+                                    placeholderTextColor="gray"
+                                    onChangeText={(phrasetext) => setDiary(phrasetext)}
+                                    textAlignVertical="top"
                                 />
-                            </TouchableOpacity>
 
-                            <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                            >
-                                <FeatherIcon color="#1a2525" name="more-vertical" size={24} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.placeholder}>
-                            <View style={styles.placeholderInset}>
-                                <View style={styles.contentContainer}>
-                                    <TextInput
-                                        editable={true}
-                                        multiline={true}
-                                        style={[
-                                            styles.TextInput,
-                                            {
-                                                backgroundColor: colortheme.background,
-                                                color: colortheme.text,
-                                                paddingHorizontal: 20,
-                                                elevation: 40,
-                                            },
-                                        ]}
-                                        value={diary}
-                                        placeholder="Journal your day ..."
-                                        placeholderTextColor="gray"
-                                        onChangeText={(phrasetext) => setDiary(phrasetext)}
-                                        textAlignVertical="top"
-                                    />
-
-                                    <TouchableOpacity disabled={isloading} onPress={handleSave} style={styles.saveBtn}>
-                                        <Text style={styles.saveText}>{isEdit ? "UPDATE" : "ADD"}</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                <TouchableOpacity
+                                    disabled={isloading}
+                                    onPress={handleSave}
+                                    style={[
+                                        styles.saveBtn,
+                                        {
+                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        },
+                                    ]}
+                                >
+                                    <Text style={[styles.saveText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        {isEdit ? "UPDATE" : "ADD"}
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
-                </KeyboardAvoidingView>
-            </AlertNotificationRoot>
+                </View>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
@@ -224,7 +245,7 @@ const styles = StyleSheet.create({
         backgroundColor: "transparent",
     },
     placeholderInset: {
-        borderWidth: 4,
+        borderWidth: 3,
         borderColor: "#e5e7eb",
         borderStyle: "dashed",
         borderRadius: 9,

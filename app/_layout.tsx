@@ -30,7 +30,6 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
             <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
                 <Stack.Screen name="editOld" options={{ headerTitle: "" }} />
                 <Stack.Screen name="editProfile" options={{ headerTitle: "Edit Profile" }} />
                 <Stack.Screen name="+not-found" />

@@ -9,6 +9,8 @@ import {
     Text,
     Image,
     RefreshControl,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
 
 import { Feather as FeatherIcon } from "@expo/vector-icons";
@@ -19,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
 import { AlertNotificationRoot } from "react-native-alert-notification";
 import { ContributionGraph } from "react-native-chart-kit";
+import { useColorScheme } from "react-native";
 import ActionSheet from "react-native-actions-sheet";
 const today = new Date();
 
@@ -42,6 +45,18 @@ export default function Explore() {
         { label: "Account Type", value: "Personal" },
         { label: "Entries", value: entry?.length },
     ];
+    const lightTheme = {
+        color: "#888",
+        contentBackground: "#f8f8f8",
+        backgroundColor: "#ffffff",
+        borderColor: "#f0f0f0",
+    };
+    const darkTheme = {
+        color: "#fff",
+        backgroundColor: "#000",
+        contentBackground: "#2d4150",
+        borderColor: "#888",
+    };
     const [searchTerm, setSearchTerm] = useState("");
     const [showTimeline, setShowTimeline] = useState(false);
     async function initUser() {
@@ -91,9 +106,10 @@ export default function Explore() {
             setRefreshing(false); // Stop refreshing after the task is complete
         }, 2000); // Adjust the time according to your needs
     }, []);
+    const theme = useColorScheme();
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
-            <AlertNotificationRoot>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={0} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                 <View style={styles.header}>
                     <View style={styles.headerAction}>
                         <TouchableOpacity
@@ -104,31 +120,41 @@ export default function Explore() {
                             {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
                         </TouchableOpacity>
                     </View>
-                    <Text numberOfLines={1} style={styles.headerTitle}>
+                    <Text numberOfLines={1} style={[styles.headerTitle, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
                         Profile
                     </Text>
 
                     <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
                         <Menu
                             visible={visible}
-                            anchor={<FeatherIcon onPress={() => setVisible(true)} name="more-vertical" size={24} />}
+                            anchor={
+                                <FeatherIcon
+                                    color={theme === "dark" ? darkTheme.color : lightTheme.color}
+                                    onPress={() => setVisible(true)}
+                                    name="more-vertical"
+                                    size={24}
+                                />
+                            }
                             onRequestClose={() => {
                                 setVisible(false);
                             }}
+                            style={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
                         >
                             <MenuItem
+                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
                                 onPress={() => {
                                     router.push("/editProfile");
                                 }}
                             >
-                                Edit Profile
+                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Edit Profile</Text>
                             </MenuItem>
                             <MenuItem
+                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
                                 onPress={() => {
                                     actionSheetRef.current?.show();
                                 }}
                             >
-                                Log out
+                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Log out</Text>
                             </MenuItem>
                         </Menu>
                     </View>
@@ -146,7 +172,12 @@ export default function Explore() {
                     }
                 >
                     <View style={styles.content}>
-                        <View style={styles.profile}>
+                        <View
+                            style={[
+                                styles.profile,
+                                { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor },
+                            ]}
+                        >
                             <Text style={styles.sectionTitle}>Account</Text>
                             <View style={styles.profileTop}>
                                 <View style={styles.avatar}>
@@ -162,7 +193,9 @@ export default function Explore() {
                                 </View>
 
                                 <View style={styles.profileBody}>
-                                    <Text style={styles.profileTitle}>{user?.name}</Text>
+                                    <Text style={[styles.profileTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        {user?.name}
+                                    </Text>
 
                                     <Text style={styles.profileSubtitle}>
                                         <Text style={{ color: "" }}>{user?.email}</Text>
@@ -186,25 +219,42 @@ export default function Explore() {
                             </View>
                         </View>
 
-                        <View style={styles.stats}>
+                        <View
+                            style={[
+                                styles.stats,
+                                { backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
+                            ]}
+                        >
                             {stats.map(({ label, value }, index) => (
                                 <View key={index} style={[styles.statsItem, index === 0 && { borderLeftWidth: 0 }]}>
                                     <Text style={styles.statsItemText}>{label}</Text>
 
-                                    <Text style={styles.statsItemValue}>{value}</Text>
+                                    <Text style={[styles.statsItemValue, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        {value}
+                                    </Text>
                                 </View>
                             ))}
                         </View>
 
-                        <View style={styles.contentActions}>
+                        <View style={[styles.contentActions, {}]}>
                             <TouchableOpacity
                                 onPress={() => {
                                     router.push("/editProfile");
                                 }}
                                 style={{ flex: 1, paddingHorizontal: 6 }}
                             >
-                                <View style={styles.btn}>
-                                    <Text style={styles.btnText}>Edit Profile</Text>
+                                <View
+                                    style={[
+                                        styles.btn,
+                                        {
+                                            color: theme == "dark" ? darkTheme.color : lightTheme.color,
+                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        },
+                                    ]}
+                                >
+                                    <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Edit Profile
+                                    </Text>
                                 </View>
                             </TouchableOpacity>
 
@@ -214,8 +264,18 @@ export default function Explore() {
                                 }}
                                 style={{ flex: 1, paddingHorizontal: 6 }}
                             >
-                                <View style={styles.btn}>
-                                    <Text style={styles.btnText}>Settings</Text>
+                                <View
+                                    style={[
+                                        styles.btn,
+                                        {
+                                            color: theme == "dark" ? darkTheme.color : lightTheme.color,
+                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        },
+                                    ]}
+                                >
+                                    <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Settings
+                                    </Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -223,7 +283,7 @@ export default function Explore() {
 
                     <View style={styles.list}>
                         <View style={styles.listHeader}>
-                            <Text style={styles.listTitle}>Recents</Text>
+                            <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>Recents</Text>
 
                             <TouchableOpacity
                                 onPress={() => {
@@ -231,7 +291,14 @@ export default function Explore() {
                                 }}
                             >
                                 {/* <Text style={styles.listAction}>View All</Text> */}
-                                <View style={styles.search}>
+                                <View
+                                    style={[
+                                        styles.search,
+                                        {
+                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                        },
+                                    ]}
+                                >
                                     <View style={styles.searchIcon}>
                                         <FeatherIcon color="#778599" name="search" size={17} />
                                     </View>
@@ -243,7 +310,7 @@ export default function Explore() {
                                         autoComplete="name"
                                         placeholder="Search..."
                                         placeholderTextColor="#778599"
-                                        style={styles.searchControl}
+                                        style={[styles.searchControl, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -257,14 +324,29 @@ export default function Explore() {
                                         router.push(`/editOld?data=${dateinfo}`, {});
                                     }}
                                 >
-                                    <View style={styles.card}>
+                                    <View
+                                        style={[
+                                            styles.card,
+                                            {
+                                                backgroundColor:
+                                                    theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            },
+                                        ]}
+                                    >
                                         <View style={styles.cardTop}>
                                             <View style={styles.cardIcon}>
                                                 <FeatherIcon color="#000" name={"book"} size={24} />
                                             </View>
 
                                             <View style={styles.cardBody}>
-                                                <Text style={styles.cardTitle}>{formatDate(dateinfo) || dateinfo}</Text>
+                                                <Text
+                                                    style={[
+                                                        styles.cardTitle,
+                                                        { color: theme == "dark" ? darkTheme.color : lightTheme.color },
+                                                    ]}
+                                                >
+                                                    {formatDate(dateinfo) || dateinfo}
+                                                </Text>
 
                                                 <Text numberOfLines={1} style={styles.cardSubtitle}>
                                                     {data}
@@ -285,7 +367,9 @@ export default function Explore() {
 
                     <View style={styles.list}>
                         <View style={styles.listHeader}>
-                            <Text style={styles.listTitle}>Activity</Text>
+                            <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                Activity
+                            </Text>
 
                             <TouchableOpacity
                                 onPress={() => {
@@ -302,25 +386,36 @@ export default function Explore() {
                             numDays={100} // Number of days you want to show
                             width={Dimensions.get("window").width}
                             height={220}
-                            chartConfig={chartConfig}
+                            chartConfig={{
+                                ...chartConfig,
+                                backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                backgroundGradientFrom: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                backgroundGradientTo: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                            }}
                             horizontal={true}
+                            style={{ paddingTop: 15 }}
                         />
 
                         {}
                     </View>
                 </ScrollView>
-                <ActionSheet ref={actionSheetRef}>
-                    <Text style={styles.actionHeadding}>Are You Sure To log out ?</Text>
-                    <View style={styles.actionWrap}>
-                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                            <Text style={styles.actionBtnCnl}>ok</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                            <Text style={styles.actionBtn}>cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ActionSheet>
-            </AlertNotificationRoot>
+            </KeyboardAvoidingView>
+            <ActionSheet
+                ref={actionSheetRef}
+                containerStyle={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
+            >
+                <Text style={[styles.actionHeadding, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                    Are You Sure To log out ?
+                </Text>
+                <View style={styles.actionWrap}>
+                    <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                        <Text style={styles.actionBtnCnl}>ok</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                        <Text style={[styles.actionBtn, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>cancel</Text>
+                    </TouchableOpacity>
+                </View>
+            </ActionSheet>
         </SafeAreaView>
     );
 }
@@ -328,11 +423,12 @@ const chartConfig = {
     backgroundColor: "#f8f8f8",
     backgroundGradientFrom: "#ffffff",
     backgroundGradientTo: "#f8f8f8",
+
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(0, 144, 0, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(0, 144, 0, ${opacity})`,
     style: {
-        borderRadius: 16,
+        /// borderRadius: 16,
     },
 };
 function formatDate(dateString) {
