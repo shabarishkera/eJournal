@@ -1,12 +1,12 @@
-import { Image, StyleSheet, Platform, Text, Button, View, TextInput, TouchableOpacity, KeyboardAvoidingView } from "react-native";
+import { Image, StyleSheet, Platform, Text, Button, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import { editDiary, getDiaryByDate, addDiary } from "@/components/backend/database";
+import { editDiary, getDiaryByDate, addDiary, finduserDetails, deleteDiaryData } from "@/components/backend/database";
 import { ALERT_TYPE, AlertNotificationRoot, Toast } from "react-native-alert-notification";
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function addOld({ route, navigation }) {
@@ -21,9 +21,9 @@ export default function addOld({ route, navigation }) {
     const [user, setUser] = useState(null);
     const { data } = useLocalSearchParams();
 
-    const getTodaysDiary = async (date) => {
+    const getTodaysDiary = async (date, email) => {
         setDiary("");
-        const res = await getDiaryByDate(date);
+        const res = await getDiaryByDate(date, email);
 
         if (res) {
             setDiary(res);
@@ -56,16 +56,20 @@ export default function addOld({ route, navigation }) {
     );
     async function initUser() {
         const res = await AsyncStorage.getItem("userToken");
+        const parsedRes = await JSON.parse(res);
+        const re = await finduserDetails(parsedRes.email);
 
-        if (res) setUser(JSON.parse(res));
+        if (re) {
+            setUser(re);
+            getTodaysDiary(dateval, re.email);
+        }
     }
     useEffect(() => {
         if (dateval) {
-            getTodaysDiary(dateval);
             initUser(); // Fetch diary based on the date;
         }
         navigation?.setOptions({
-            title: title, // This sets the title to the passed value
+            title: "Edit", // This sets the title to the passed value
         });
     }, [dateval]);
     // Function to handle saving the diary entry
@@ -74,9 +78,9 @@ export default function addOld({ route, navigation }) {
             setIsLoading(true);
             try {
                 if (!isEdit) {
-                    const res = await addDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
+                    const res = await addDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary, user.email);
                 } else {
-                    const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
+                    const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary, user.email);
                 }
                 Toast.show({
                     type: ALERT_TYPE.SUCCESS,
@@ -125,15 +129,34 @@ export default function addOld({ route, navigation }) {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
+                                    disabled={!isEdit}
                                     onPress={() => {
-                                        // handle onPress
+                                        Alert.alert(
+                                            "Delete data?", // Title
+                                            " Delete the current entry ?", // Message
+                                            [
+                                                {
+                                                    text: "Cancel", // Cancel button
+                                                    style: "cancel", // 'cancel' style for a non-destructive action
+                                                },
+                                                {
+                                                    text: "Delete", // Destructive button
+                                                    style: "destructive", // This marks the button as destructive
+                                                    onPress: async () => {
+                                                        try {
+                                                            await deleteDiaryData(user?.email, dateval);
+                                                            router.navigate("/(tabs)/");
+                                                        } catch (error) {
+                                                            console.log(error);
+                                                        }
+                                                    }, // Action to take if confirmed
+                                                },
+                                            ],
+                                            { cancelable: true }
+                                        );
                                     }}
                                 >
-                                    <FeatherIcon
-                                        color={theme == "dark" ? darkTheme.color : lightTheme.color}
-                                        name="more-vertical"
-                                        size={24}
-                                    />
+                                    <MaterialIcons name="delete" size={24} color={isEdit ? "red" : darkTheme.contentBackground} />
                                 </TouchableOpacity>
                             </View>
 
@@ -236,6 +259,8 @@ const styles = StyleSheet.create({
         width: 38,
         height: 38,
         borderRadius: 9999,
+        borderWidth: 1,
+        borderColor: "#266ef1",
     },
     /** Placeholder */
     placeholder: {

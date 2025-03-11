@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 
 import React, { useState, useEffect } from "react";
-import { addDiary, getDiaryByDate, editDiary } from "@/components/backend/database";
+import { addDiary, getDiaryByDate, editDiary, finduserDetails } from "@/components/backend/database";
 import { Colors } from "@/constants/Colors";
 import { useFocusEffect, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -51,9 +51,9 @@ export default function Add() {
     };
 
     // Function to fetch today's diary entry based on date
-    const getTodaysDiary = async (date) => {
+    const getTodaysDiary = async (date, email) => {
         setDiary("");
-        const res = await getDiaryByDate(date);
+        const res = await getDiaryByDate(date, email);
 
         if (res) {
             setDiary(res);
@@ -77,14 +77,19 @@ export default function Add() {
     );
     async function initUser() {
         const res = await AsyncStorage.getItem("userToken");
+        const parsedRes = await JSON.parse(res);
+        const re = await finduserDetails(parsedRes.email);
 
-        if (res) setUser(JSON.parse(res));
+        if (re) {
+            getTodaysDiary(dateval, re.email);
+            setUser(re);
+        }
     }
 
     // This useEffect ensures that diary data is fetched after the dateval is set
     useEffect(() => {
         if (dateval) {
-            getTodaysDiary(dateval); // Fetch diary based on the date
+            // Fetch diary based on the date
         }
         initUser();
     }, [dateval]); // Run whenever `dateval` changes
@@ -95,9 +100,9 @@ export default function Add() {
             setIsLoading(true);
             try {
                 if (!isEdit) {
-                    const res = await addDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
+                    const res = await addDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary, user?.email);
                 } else {
-                    const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary);
+                    const res = await editDiary(dateval, new Date().getFullYear(), new Date().getDay().toString(), diary, user?.email);
                 }
 
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -233,6 +238,8 @@ const styles = StyleSheet.create({
         width: 38,
         height: 38,
         borderRadius: 9999,
+        borderWidth: 1,
+        borderColor: "#266ef1",
     },
     /** Placeholder */
     placeholder: {

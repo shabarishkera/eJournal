@@ -6,19 +6,23 @@ export async function init() {
         // Create the diarydata table using execAsync
         await database.execAsync(`
           CREATE TABLE IF NOT EXISTS diarydata(
-            dateinfo varchar(20) PRIMARY KEY,
+            dateinfo varchar(20) ,
             year int,
             day varchar(20),
-            data TEXT
+            data TEXT,
+            email TEXT,
+            PRIMARY KEY (email, dateinfo)
           );
         `);
 
         // Create the user table using execAsync
         await database.execAsync(`
           CREATE TABLE IF NOT EXISTS user(
-            email varchar(30) UNIQUE,
+            email varchar(50) UNIQUE,
             name varchar(25),
-            password TEXT
+            password TEXT,
+            avatarUrl TEXT,
+            bio TEXT
           );
         `);
 
@@ -28,43 +32,90 @@ export async function init() {
         throw error; // Propagate the error
     }
 }
-
-export function createuser(email, username, password, bio, avatarUrl) {
-    console.log(email, username, bio, avatarUrl, password);
+export async function deleteTables() {
     try {
-        database
-            .runAsync(`INSERT INTO user (email,name,password) VALUES (?, ?, ?)`, email, username, password)
-            .then((res) => {
-                console.log("user data saved successfully", res);
-            })
-            .catch((err) => {
-                throw err;
-            });
+        // Delete the diarydata table if it exists
+        await database.execAsync(`
+            DROP TABLE IF EXISTS diarydata;
+        `);
+
+        // Delete the user table if it exists
+        await database.execAsync(`
+            DROP TABLE IF EXISTS user;
+        `);
+
+        console.log("Tables deleted successfully");
     } catch (error) {
-        throw error;
+        console.error("Error deleting tables:", error);
+        throw error; // Propagate the error
     }
 }
-export async function fetchalldiary() {
-    const res = await database.getAllAsync("SELECT * FROM diarydata");
 
-    return res;
+export async function deleteUserData(email) {
+    try {
+        // Delete the diarydata table if it exists
+        if (!email) {
+            throw new Error("Email is required");
+        }
+
+        // Delete all rows in the diarydata table for the given email
+        await database.runAsync(
+            `
+            DELETE FROM diarydata WHERE email = ?;
+        `,
+            [email]
+        );
+
+        console.log(`Rows  deleted successfully`);
+    } catch (error) {
+        console.error("Error deleting tables:", error);
+        throw error; // Propagate the error
+    }
+}
+export async function deleteDiaryData(email, dateinfo) {
+    try {
+        // Delete the diarydata table if it exists
+        if (!email) {
+            throw new Error("Email is required");
+        }
+
+        // Delete all rows in the diarydata table for the given email
+        await database.runAsync(
+            `
+            DELETE FROM diarydata WHERE email = ? AND dateinfo=?;
+        `,
+            [email, dateinfo]
+        );
+
+        console.log(`Rows for email ${email} deleted successfully`);
+    } catch (error) {
+        console.error("Error deleting tables:", error);
+        throw error; // Propagate the error
+    }
 }
 
-export async function addDiary(date, year, day, data) {
-    await database
-        .runAsync("INSERT INTO diarydata (dateinfo ,year, day,data) VALUES(?,?,?,?)", date, year, day, data)
-        .then(() => {
-            console.log("data added successfully");
-        })
-        .catch((err) => {
-            console.log(err);
-            throw err;
-        });
-    return "data saved successfully";
+export async function createuser(email, username, password, bio, avatarUrl) {
+    console.log(email, username, bio, avatarUrl, password);
+    try {
+        const res = await database.runAsync(
+            `INSERT INTO user (email,name,password,avatarUrl,bio) VALUES (?, ?, ?,?,?)`,
+            email,
+            username,
+            password,
+            avatarUrl,
+            bio
+        );
+        return res;
+    } catch (error) {
+        if (error.message.includes("UNIQUE constraint failed")) {
+            throw new Error("email exists");
+        }
+        console.log(error.message);
+    }
 }
-export async function editDiary(date, year, day, data) {
+export async function edituser(email, username, bio, avatarUrl) {
     await database
-        .runAsync(`UPDATE diarydata SET data=? WHERE dateinfo=?`, data, date)
+        .runAsync(`UPDATE user SET name=? ,bio=?,avatarUrl=? WHERE  email=?`, username, bio, avatarUrl, email)
         .then(() => {
             console.log("data updated");
             return "Ok";
@@ -74,13 +125,59 @@ export async function editDiary(date, year, day, data) {
         });
     return "data updated successfully";
 }
-export async function getDiaryByDate(date) {
-    const firstRow = await database.getFirstAsync(`SELECT * FROM diarydata  WHERE  dateinfo='${date}'`);
+export async function finduser(email, password) {
+    try {
+        const res = await database.getFirstAsync(`SELECT * FROM user where email=? and password=?`, email, password);
+        return res;
+    } catch (error) {
+        throw error;
+    }
+}
+export async function finduserDetails(email) {
+    try {
+        const res = await database.getFirstAsync(`SELECT * FROM user where email=? `, email);
+        return res;
+    } catch (error) {
+        throw error;
+    }
+}
+export async function fetchalldiary(email) {
+    const res = await database.getAllAsync("SELECT * FROM diarydata WHERE email=?", email);
+
+    return res;
+}
+
+export async function addDiary(date, year, day, data, email) {
+    await database
+        .runAsync("INSERT INTO diarydata (dateinfo ,year, day,data,email) VALUES(?,?,?,?,?)", date, year, day, data, email)
+        .then(() => {
+            console.log("data added successfully");
+        })
+        .catch((err) => {
+            console.log(err);
+            throw err;
+        });
+    return "data saved successfully";
+}
+export async function editDiary(date, year, day, data, email) {
+    await database
+        .runAsync(`UPDATE diarydata SET data=? WHERE dateinfo=?  AND email=?`, data, date, email)
+        .then(() => {
+            console.log("data updated");
+            return "Ok";
+        })
+        .catch((err) => {
+            throw err;
+        });
+    return "data updated successfully";
+}
+export async function getDiaryByDate(date, email) {
+    const firstRow = await database.getFirstAsync(`SELECT * FROM diarydata  WHERE  dateinfo='${date}' AND email="${email}"`);
 
     return firstRow.data;
 }
 
-export async function getLast30DaysData(key) {
+export async function getLast30DaysData(key, email) {
     const dates = [];
     const today = new Date();
 
@@ -93,7 +190,7 @@ export async function getLast30DaysData(key) {
     }
 
     try {
-        const result = await database.getAllAsync("SELECT * FROM diarydata");
+        const result = await database.getAllAsync("SELECT * FROM diarydata WHERE email=?", email);
         let ans = [];
         for (let row of result) {
             if (dates.includes(row.dateinfo)) ans.push(row);

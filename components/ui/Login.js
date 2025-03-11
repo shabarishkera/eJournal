@@ -19,7 +19,7 @@ import { ThemedText } from "../ThemedText";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { createuser } from "../backend/database";
+import { createuser, finduser } from "../backend/database";
 export default function Login({ setUserTocken }) {
     const [isLogin, setIslogin] = useState(true);
     const [email, setEmail] = useState("");
@@ -31,22 +31,46 @@ export default function Login({ setUserTocken }) {
         email: "",
         password: "",
         confirmPassword: "",
-        bio: "Update your bio",
+        bio: "",
         avatarUrl: null,
     });
     const handleOnPress = async () => {
         try {
             if (!isLogin) {
                 if (form.email && form.name && form.password === form.confirmPassword) {
-                    createuser(form.email, form.name, form.password, form.bio, form.avatarUrl);
+                    const res = await createuser(form.email, form.name, form.password, form.bio, form.avatarUrl);
+                    console.log(res);
+                    if (res) {
+                        AsyncStorage.setItem(
+                            "userToken",
+                            JSON.stringify({
+                                email: form.email,
+                                password: form.password,
+                                name: form.name,
+                                bio: form.bio,
+                                avatarUrl: form.avatarUrl,
+                            }),
+                            async () => {
+                                const res = await AsyncStorage.getItem("userToken");
+                                setUserTocken(res);
+                            }
+                        );
+                    }
+                } else {
+                    Alert.alert("Invalid Parameters", "Check your email or password ");
+                }
+            } else {
+                const res = await finduser(form.email, form.password);
+
+                if (res) {
                     AsyncStorage.setItem(
                         "userToken",
                         JSON.stringify({
-                            email: form.email,
-                            password: form.password,
-                            name: form.name,
-                            bio: "add you bio...",
-                            avatarUrl: form.avatarUrl,
+                            email: res.email,
+                            password: res.password,
+                            name: res.name,
+                            bio: res.bio,
+                            avatarUrl: res.avatarUrl,
                         }),
                         async () => {
                             const res = await AsyncStorage.getItem("userToken");
@@ -54,11 +78,15 @@ export default function Login({ setUserTocken }) {
                         }
                     );
                 } else {
-                    Alert.alert("Invalid Parameters", "Check your email or password ");
+                    Alert.alert("Invalid credintials", "Check your email or password");
                 }
             }
         } catch (error) {
             console.log("unable to create user", error);
+            if (error.message === "email exists")
+                Alert.alert("User Exists", "The entered email is already in  use .Use a different email or login using the given email !");
+            else Alert.alert("Error ", "Something went wrong , try again with different credentials...");
+            console.log(error);
         }
     };
     return (
@@ -81,17 +109,19 @@ export default function Login({ setUserTocken }) {
                     <Text style={styles.subtitle}>Fill in the fields below to get started with your credentials.</Text>
                     <ScrollView>
                         <View style={[styles.form]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                            <View style={styles.input}>
-                                <Text style={styles.inputLabel}>Full Name</Text>
+                            {!isLogin && (
+                                <View style={styles.input}>
+                                    <Text style={styles.inputLabel}>Full Name</Text>
 
-                                <TextInput
-                                    clearButtonMode="while-editing"
-                                    onChangeText={(name) => setForm({ ...form, name })}
-                                    placeholder="John Doe"
-                                    style={styles.inputControl}
-                                    value={form.name}
-                                />
-                            </View>
+                                    <TextInput
+                                        clearButtonMode="while-editing"
+                                        onChangeText={(name) => setForm({ ...form, name })}
+                                        placeholder="John Doe"
+                                        style={styles.inputControl}
+                                        value={form.name}
+                                    />
+                                </View>
+                            )}
 
                             <View style={styles.input}>
                                 <Text style={styles.inputLabel}>Email Address</Text>
@@ -159,7 +189,7 @@ export default function Login({ setUserTocken }) {
                 >
                     <Text style={styles.formFooter}>
                         {isLogin ? "Dont have an account?" : "Already have an account?"}{" "}
-                        <Text style={{ textDecorationLine: "underline" }}>{isLogin ? "Sign up" : "Sing in"}</Text>
+                        <Text style={{ textDecorationLine: "underline" }}>{isLogin ? "Sign Up" : "Sign In"}</Text>
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>

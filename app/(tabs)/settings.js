@@ -7,13 +7,18 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { Rating } from "react-native-ratings";
+import { useAuth } from "@/components/store/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-export default function Settings() {
+import Alert from "@/components/ui/Alert";
+export default function Settings(props) {
     const [user, setUser] = useState(null);
     const ratingSheetRef = useRef(null);
-    const placeholder = require("@/assets/images/profile.jpg");
+    const { userToken, setUserToken } = useAuth();
+ 
+
     const router = useRouter();
     const theme = useColorScheme();
+
     async function initUser() {
         try {
             const res = await AsyncStorage.getItem("userToken");
@@ -95,11 +100,7 @@ export default function Settings() {
                                     { backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
                                 ]}
                             >
-                                <Image
-                                    alt=""
-                                    source={user?.avatarUrl ? { uri: user?.avatarUrl } : placeholder}
-                                    style={styles.profileAvatar}
-                                />
+                                <Image alt="" source={{ uri: user?.avatarUrl }} style={styles.profileAvatar} />
 
                                 <View style={styles.profileBody}>
                                     <Text style={[styles.profileName, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
@@ -347,6 +348,7 @@ export default function Settings() {
                                 <TouchableOpacity
                                     onPress={() => {
                                         ToastAndroid.show("Terms is not available right now !", ToastAndroid.SHORT);
+                                      
                                     }}
                                     style={styles.row}
                                 >
@@ -411,7 +413,13 @@ export default function Settings() {
                             Are You Sure To log out ?
                         </Text>
                         <View style={styles.actionWrap}>
-                            <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    actionSheetRef.current?.hide();
+                                    setUserToken(null);
+                                    AsyncStorage.removeItem("userToken");
+                                }}
+                            >
                                 <Text style={styles.actionBtn}>ok</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
@@ -517,6 +525,8 @@ const styles = StyleSheet.create({
         height: 60,
         borderRadius: 9999,
         marginRight: 12,
+        borderWidth: 1,
+        borderColor: "#266ef1",
     },
     profileBody: {
         marginRight: "auto",

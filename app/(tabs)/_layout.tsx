@@ -17,31 +17,16 @@ import Foundation from "@expo/vector-icons/Foundation";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
+import { useAuth } from "@/components/store/Store";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
-    const [userTocken, setUserTocken] = useState<String | null>(null);
-    const [loading, setIsLoading] = useState<Boolean>(true);
-    const ruter = useRouter();
+    const { userToken, setUserToken, loading, setLoading } = useAuth();
+    console.log(userToken, setUserToken);
+    // const [userTocken, setUserTocken] = useState<String | null>(null);
+
     const theme = useColorScheme();
 
-    useLayoutEffect(() => {
-        (async () => {
-            try {
-                init();
-                //AsyncStorage.removeItem("userToken");
-                const tocken = await AsyncStorage.getItem("userToken");
-                setIsLoading(false);
-
-                setUserTocken(tocken);
-            } catch (err) {
-                //navigate to the error page
-
-                setUserTocken(null);
-                console.log("cannot load data");
-            }
-        })();
-    }, []);
     if (loading)
         return (
             <SafeAreaProvider>
@@ -51,11 +36,11 @@ export default function TabLayout() {
             </SafeAreaProvider>
         );
 
-    if (!userTocken)
+    if (!userToken)
         return (
             <SafeAreaProvider>
                 <SafeAreaView style={{ flex: 1 }}>
-                    <Login setUserTocken={setUserTocken} />
+                    <Login setUserTocken={setUserToken} />
                 </SafeAreaView>
             </SafeAreaProvider>
         );
@@ -88,6 +73,7 @@ export default function TabLayout() {
                 key={`index-${Math.random()}`} // Ensure re-render on tab switch by adding a random key
                 options={{
                     title: "Home",
+
                     tabBarIcon: ({ color }) => <Foundation name="book" size={28} color={color} />,
                 }}
             />

@@ -11,6 +11,7 @@ import {
     RefreshControl,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from "react-native";
 
 import { Feather as FeatherIcon } from "@expo/vector-icons";
@@ -18,11 +19,12 @@ import { Menu, MenuItem } from "react-native-material-menu";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getLast30DaysData, fetchalldiary } from "@/components/backend/database";
+import { getLast30DaysData, fetchalldiary, deleteTables, finduserDetails, deleteUserData } from "@/components/backend/database";
 import { AlertNotificationRoot } from "react-native-alert-notification";
 import { ContributionGraph } from "react-native-chart-kit";
 import { useColorScheme } from "react-native";
 import ActionSheet from "react-native-actions-sheet";
+import { useAuth } from "@/components/store/Store";
 const today = new Date();
 
 let date = new Date(today);
@@ -39,7 +41,7 @@ export default function Explore() {
     const [visible, setVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const actionSheetRef = useRef(null);
-
+    const { userToken, setUserToken } = useAuth();
     const stats = [
         { label: "Backup", value: "System" },
         { label: "Account Type", value: "Personal" },
@@ -62,11 +64,11 @@ export default function Explore() {
     async function initUser() {
         try {
             const res = await AsyncStorage.getItem("userToken");
-
-            if (res !== null) {
-                let parsedRes = JSON.parse(res);
-
-                setUser(parsedRes);
+            const parsedRes = await JSON.parse(res);
+            const re = await finduserDetails(parsedRes.email);
+            if (re) {
+                setUser(re);
+                getEntry();
             } else {
                 console.log("No user data found");
                 // Handle case when no userToken exists, e.g., set default user or redirect to login
@@ -75,34 +77,35 @@ export default function Explore() {
             console.error("Error retrieving user data", error);
         }
     }
-    async function getRecents(searchTerm) {
-        let res = await getLast30DaysData(searchTerm);
+    async function getRecents(searchTerm, email) {
+        let res = await getLast30DaysData(searchTerm, user?.email);
 
         if (res) {
             setItems(res.reverse());
         }
     }
     async function getEntry() {
-        let res = await fetchalldiary();
+        let res = await fetchalldiary(user?.email);
         if (res) setEntry(res);
     }
-    useEffect(() => {
-        initUser();
-        getEntry();
-        getRecents();
-    }, []);
 
     useEffect(() => {
-        getRecents(searchTerm);
+        getRecents(searchTerm, user?.email);
     }, [searchTerm]);
+    useEffect(() => {
+        initUser();
+    }, []);
+    useEffect(() => {
+        getRecents("", user?.email);
+        getEntry();
+    }, [user]);
     const onRefresh = useCallback(() => {
         setRefreshing(true);
 
         // Simulating an API call or async task
         setTimeout(() => {
             initUser();
-            getEntry();
-            getRecents();
+
             setRefreshing(false); // Stop refreshing after the task is complete
         }, 2000); // Adjust the time according to your needs
     }, []);
@@ -154,7 +157,49 @@ export default function Explore() {
                                     actionSheetRef.current?.show();
                                 }}
                             >
-                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Log out</Text>
+                                <Text style={{ color: "red" }}> Log out</Text>
+                            </MenuItem>
+                            <MenuItem
+                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                onPress={async () => {
+                                    try {
+                                        await deleteTables();
+                                    } catch (error) {
+                                        console.log(error);
+                                    }
+                                }}
+                            >
+                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> delete tables</Text>
+                            </MenuItem>
+                            <MenuItem
+                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Delete data?", // Title
+                                        "All of your data will be deleted, are you sure to continue ?", // Message
+                                        [
+                                            {
+                                                text: "Cancel", // Cancel button
+                                                style: "cancel", // 'cancel' style for a non-destructive action
+                                            },
+                                            {
+                                                text: "Delete", // Destructive button
+                                                style: "destructive", // This marks the button as destructive
+                                                onPress: async () => {
+                                                    try {
+                                                        await deleteUserData(user?.email);
+                                                        setVisible(false);
+                                                    } catch (error) {
+                                                        console.log(error);
+                                                    }
+                                                }, // Action to take if confirmed
+                                            },
+                                        ],
+                                        { cancelable: true }
+                                    );
+                                }}
+                            >
+                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Delete my data</Text>
                             </MenuItem>
                         </Menu>
                     </View>
@@ -388,9 +433,9 @@ export default function Explore() {
                             height={220}
                             chartConfig={{
                                 ...chartConfig,
-                                backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                                backgroundGradientFrom: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                                backgroundGradientTo: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                                backgroundGradientFrom: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                                backgroundGradientTo: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
                             }}
                             horizontal={true}
                             style={{ paddingTop: 15 }}
@@ -408,7 +453,13 @@ export default function Explore() {
                     Are You Sure To log out ?
                 </Text>
                 <View style={styles.actionWrap}>
-                    <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            AsyncStorage.removeItem("userToken");
+                            setUserToken(null);
+                            actionSheetRef.current?.hide();
+                        }}
+                    >
                         <Text style={styles.actionBtnCnl}>ok</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>

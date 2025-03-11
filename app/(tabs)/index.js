@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { fetchalldiary } from "@/components/backend/database";
+import { fetchalldiary, deleteDiaryData } from "@/components/backend/database";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Agenda } from "react-native-calendars";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Text, View, TouchableOpacity, StyleSheet, useColorScheme, ToastAndroid } from "react-native";
-
+import { Text, View, TouchableOpacity, StyleSheet, useColorScheme, ToastAndroid, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/components/store/Store";
 export default function Home() {
     const theme = useColorScheme();
+    const { userToken, setUserToken } = useAuth();
     const [items, setitems] = useState({});
     const [isLoaded, setIsLoaded] = useState(false); // Flag to check if data is loaded
     const router = useRouter();
+
     const formatDate = (date) => {
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -18,14 +21,13 @@ export default function Home() {
     };
     const [selected, setSelected] = useState(formatDate(new Date()));
     // Fetch data function
-    async function inititems() {
-        const result = await fetchalldiary();
-
+    async function inititems(email) {
+        const result = await fetchalldiary(userToken?.email);
+        console.log(typeof userToken);
         // Define the type for the items object where the keys are date strings and values are arrays of EventItem objects
 
         let tempitem = {};
         for (let row of result) {
-            const array = row;
             tempitem[`${row.dateinfo}`] = [{ name: row.data, date: row.dateinfo, height: 50 }];
         }
         setitems(tempitem);
@@ -36,8 +38,8 @@ export default function Home() {
     // Prevent continuous fetching with useFocusEffect
     useFocusEffect(
         React.useCallback(() => {
-            inititems(); // Call inititems only if not already loaded
-        }, [isLoaded]) // Dependency on isLoaded to ensure it only runs once
+            inititems(userToken.email); // Call inititems only if not already loaded
+        }, [isLoaded, userToken]) // Dependency on isLoaded to ensure it only runs once
     );
 
     // Format Date function
@@ -125,6 +127,31 @@ export default function Home() {
                             <TouchableOpacity
                                 onPress={() => {
                                     router.push(`/editOld?data=${item.date}`, {});
+                                }}
+                                onLongPress={() => {
+                                    console.log("long press");
+                                    Alert.alert(
+                                        "Delete data?", // Title
+                                        " Delete selected entry ?", // Message
+                                        [
+                                            {
+                                                text: "Cancel", // Cancel button
+                                                style: "cancel", // 'cancel' style for a non-destructive action
+                                            },
+                                            {
+                                                text: "Delete", // Destructive button
+                                                style: "destructive", // This marks the button as destructive
+                                                onPress: async () => {
+                                                    try {
+                                                        await deleteDiaryData(userToken?.email, dateval);
+                                                    } catch (error) {
+                                                        console.log(error);
+                                                    }
+                                                }, // Action to take if confirmed
+                                            },
+                                        ],
+                                        { cancelable: true }
+                                    );
                                 }}
                                 style={[
                                     styles.item,

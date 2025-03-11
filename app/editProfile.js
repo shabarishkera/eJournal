@@ -6,9 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import ActionSheet from "react-native-actions-sheet";
-
+import { finduserDetails, edituser } from "@/components/backend/database";
 export default function editProfile(prop) {
     const router = useRouter();
+    const [user, setUser] = useState(null);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [bio, setBio] = useState("");
@@ -18,16 +19,21 @@ export default function editProfile(prop) {
     const theme = useColorScheme();
     async function initDetails() {
         try {
-            const res = await AsyncStorage.getItem("userToken");
+            const result = await AsyncStorage.getItem("userToken");
 
-            if (res !== null) {
-                let parsedRes = JSON.parse(res);
+            if (result) {
+                let parsedRes = await JSON.parse(result);
+                console.log(parsedRes);
+                let res = await finduserDetails(parsedRes.email);
+                if (res) {
+                    setUser(res);
+                }
 
-                setName(parsedRes.name);
-                setEmail(parsedRes.email);
-                setBio(parsedRes.bio);
-                setAvatar(parsedRes.avatarUrl);
-                setPassword(parsedRes.password);
+                setName(res.name);
+                setEmail(res.email);
+                setBio(res.bio);
+                setAvatar(res.avatarUrl);
+                setPassword(res.password);
             } else {
                 console.log("No user data found");
                 // Handle case when no userToken exists, e.g., set default user or redirect to login
@@ -41,16 +47,20 @@ export default function editProfile(prop) {
         initDetails();
     }, []);
     const handleSubmit = async () => {
-        await AsyncStorage.setItem(
-            "userToken",
-            JSON.stringify({
-                email: email,
-                password: password,
-                name: name,
-                bio: bio,
-                avatarUrl: avatar,
-            })
-        );
+        try {
+            await edituser(email, name, bio, avatar);
+            await AsyncStorage.setItem(
+                "userToken",
+                JSON.stringify({
+                    email: email,
+                    password: password,
+                    name: name,
+                    bio: bio,
+                    avatarUrl: avatar,
+                })
+            );
+        } catch (error) {}
+
         router.navigate("(tabs)/explore");
     };
     const lightTheme = {
@@ -115,13 +125,13 @@ export default function editProfile(prop) {
                     value={name}
                     onChangeText={setName}
                 />
-                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Email</Text>
-                <TextInput
+                {/* <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Email</Text> */}
+                {/* <TextInput
                     style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
                     placeholder="Enter Email"
                     value={email}
                     onChangeText={setEmail}
-                />
+                /> */}
                 <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Bio</Text>
                 <TextInput
                     style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
@@ -213,6 +223,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
+        borderWidth: 1,
+        borderColor: "#266ef1",
     },
     changeAvatarButton: {
         marginTop: 10,
