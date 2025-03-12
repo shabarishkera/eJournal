@@ -1,50 +1,77 @@
-# Welcome to your Expo app 👋
+# Journal App 📔
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple yet powerful journal app built using **React Native** and **Expo**. This app allows users to add, edit, delete, and view journal entries for each day. It also supports user authentication, where users can sign up and log in using their email and password. Multiple users are supported, and the app includes four main screens: **Home**, **Add**, **Settings**, and **Profile**.
 
-## Get started
+## Features ✨
 
-1. Install dependencies
+-   **CRUD Operations**: Add, Edit, Delete, and View journal entries. 📝
+-   **User Authentication**: Users can log in using email and password. 🔒
+-   **Multiple Users**: Supports multiple user accounts. 👥
+-   **Screens**:
+    -   **Home**: Displays the list of journal entries. 🏠
+    -   **Add**: Allows users to add a new journal entry. ➕
+    -   **Settings**: Customize the app settings. ⚙️
+    -   **Profile**: View and edit user profile information. 🧑‍💻
+-   **Light & Dark Themes**: The app supports both light and dark modes for a better user experience. 🌞🌜
 
-   ```bash
-   npm install
-   ```
+## Screenshots 📸
 
-2. Start the app
+### Light Theme 🌞
 
-   ```bash
-    npx expo start
-   ```
+<img src="assets/screenshots/home.jpg" width="300"/>
+*Home screen in light theme.*
 
-In the output, you'll find options to open the app in a
+<img src="assets/screenshots/add.jpg" width="300"/>
+*Add journal entry screen in light theme.*
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+<img src="assets/screenshots/settings.jpg" width="300"/>
+*Settings screen in light theme.*
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+<img src="assets/screenshots/profile.jpg" width="300"/>
+*Profile screen in light theme.*
 
-## Get a fresh project
+<img src="assets/screenshots/login.jpg" width="300"/>
+*Login screen in light theme.*
 
-When you're ready, run:
+### Dark Theme 🌜
 
-```bash
-npm run reset-project
-```
+<img src="assets/screenshots/home.jpg" width="300"/>
+_Home screen in dark theme._
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+![Add Screen Dark Theme](assets/screenshots/add_dark.jpg)
+_Add journal entry screen in dark theme._
 
-## Learn more
+![Settings Screen Dark Theme](assets/screenshots/settings_dark.jpg)
+_Settings screen in dark theme._
 
-To learn more about developing your project with Expo, look at the following resources:
+![Profile Screen Dark Theme](assets/screenshots/profile_dark.jpg)
+_Profile screen in dark theme._
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+![Journal Entry Screen Dark Theme](assets/screenshots/journal_entry_dark.jpg)
+_Detailed journal entry screen in dark theme._
 
-## Join the community
+## Usage 🛠️
 
-Join our community of developers creating universal apps.
+-   **Login**: Users can log in using their email and password. New users can sign up directly through the app. 🔑
+-   **Home Screen**: Displays all journal entries with the option to add, edit, or delete entries. 📃
+-   **Add Screen**: Allows users to create a new journal entry, including adding the date, title, and content. ✍️
+-   **Settings**: Customize the app's appearance and other settings. ⚙️
+-   **Profile**: View and update user information. 👤
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Contributing 🤝
+
+Contributions are always welcome! If you have suggestions or improvements, feel free to fork the repository and create a pull request. Ensure you follow the code style and write tests for new features.
+
+1. Fork the repository. 🍴
+2. Create your feature branch (`git checkout -b feature-branch`). 🌱
+3. Commit your changes (`git commit -m 'Add feature'`). ✨
+4. Push to the branch (`git push origin feature-branch`). 🚀
+5. Open a pull request. 🖋️
+
+## License 📄
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ using **React Native** and **Expo**. 🚀

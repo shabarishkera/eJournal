@@ -242,7 +242,7 @@ export default function Settings(props) {
                             >
                                 <TouchableOpacity
                                     onPress={() => {
-                                        const email = "shabarishkera@gmail.com";
+                                        const email = "deveJournal**#@mail.com";
                                         const subject = "Enqiry/contact";
                                         const body = "";
 
@@ -277,7 +277,7 @@ export default function Settings(props) {
                             >
                                 <TouchableOpacity
                                     onPress={() => {
-                                        const email = "shabarishkera@gmail.com";
+                                        const email = "deveJournal**#@mail.com";
                                         const subject = "Report bug";
                                         const body = "";
 
@@ -430,7 +430,6 @@ export default function Settings(props) {
                             </TouchableOpacity>
                         </View>
                     </ActionSheet>
-                    {showModal && <Modal onClose={() => setShowModal(false)} />}
                 </ScrollView>
             </SafeAreaView>
         </SafeAreaProvider>
