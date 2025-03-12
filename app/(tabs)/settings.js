@@ -9,12 +9,12 @@ import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { Rating } from "react-native-ratings";
 import { useAuth } from "@/components/store/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Alert from "@/components/ui/Alert";
+import Modal from "@/components/ui/Modal";
+
 export default function Settings(props) {
     const [user, setUser] = useState(null);
     const ratingSheetRef = useRef(null);
     const { userToken, setUserToken } = useAuth();
- 
 
     const router = useRouter();
     const theme = useColorScheme();
@@ -41,6 +41,7 @@ export default function Settings(props) {
         pushNotifications: false,
         rating: 1,
     });
+    const [showModal, setShowModal] = useState(false);
     const actionSheetRef = useRef(null);
     useEffect(() => {
         initUser();
@@ -348,7 +349,7 @@ export default function Settings(props) {
                                 <TouchableOpacity
                                     onPress={() => {
                                         ToastAndroid.show("Terms is not available right now !", ToastAndroid.SHORT);
-                                      
+                                        setShowModal(!showModal);
                                     }}
                                     style={styles.row}
                                 >
@@ -429,6 +430,7 @@ export default function Settings(props) {
                             </TouchableOpacity>
                         </View>
                     </ActionSheet>
+                    {showModal && <Modal onClose={() => setShowModal(false)} />}
                 </ScrollView>
             </SafeAreaView>
         </SafeAreaProvider>

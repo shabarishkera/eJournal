@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, useColorScheme } from "react-native";
+import {
+    View,
+    Text,
+    Image,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    useColorScheme,
+    KeyboardAvoidingView,
+    ScrollView,
+    Platform,
+} from "react-native";
 
 import { useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -105,74 +116,85 @@ export default function editProfile(prop) {
         actionSheetRef.current?.hide();
     };
     return (
-        <View style={[styles.container, { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }]}>
-            <View style={styles.avatarContainer}>
-                <Image style={styles.avatar} source={{ uri: avatar }} />
-                <TouchableOpacity
-                    style={styles.changeAvatarButton}
-                    onPress={() => {
-                        actionSheetRef.current?.show();
-                    }}
+        <KeyboardAvoidingView style={[{ flex: 1 }]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <ScrollView>
+                <View
+                    style={[
+                        styles.container,
+                        { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor },
+                    ]}
                 >
-                    <Text style={styles.changeAvatarButtonText}>Change Avatar</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.form}>
-                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Name</Text>
-                <TextInput
-                    style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
-                    placeholder="Enter Name"
-                    value={name}
-                    onChangeText={setName}
-                />
-                {/* <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Email</Text> */}
-                {/* <TextInput
+                    <View style={styles.avatarContainer}>
+                        <Image style={styles.avatar} source={{ uri: avatar }} />
+                        <TouchableOpacity
+                            style={styles.changeAvatarButton}
+                            onPress={() => {
+                                actionSheetRef.current?.show();
+                            }}
+                        >
+                            <Text style={styles.changeAvatarButtonText}>Change Avatar</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.form}>
+                        <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Name</Text>
+                        <TextInput
+                            style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                            placeholder="Enter Name"
+                            value={name}
+                            onChangeText={setName}
+                        />
+                        {/* <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Email</Text> */}
+                        {/* <TextInput
                     style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
                     placeholder="Enter Email"
                     value={email}
                     onChangeText={setEmail}
                 /> */}
-                <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Bio</Text>
-                <TextInput
-                    style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
-                    placeholder="Enter Bio"
-                    value={bio}
-                    onChangeText={setBio}
-                />
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        {
-                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                        },
-                    ]}
-                    onPress={() => handleSubmit({ name, email, bio, avatar })}
-                >
-                    <Text style={[styles.buttonText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>Submit</Text>
-                </TouchableOpacity>
-                <ActionSheet
-                    ref={actionSheetRef}
-                    containerStyle={{ backgroundColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
-                >
-                    {/* <Text style={styles.actionHeadding}></Text> */}
-                    <View style={styles.actionWrap}>
-                        <TouchableOpacity onPress={captureImage}>
-                            <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                Take a photo
-                            </Text>
+                        <Text style={[styles.label, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>Bio</Text>
+                        <TextInput
+                            style={[styles.input, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                            placeholder="Enter Bio"
+                            value={bio}
+                            onChangeText={setBio}
+                        />
+                        <TouchableOpacity
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                },
+                            ]}
+                            onPress={() => handleSubmit({ name, email, bio, avatar })}
+                        >
+                            <Text style={[styles.buttonText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>Submit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={pickImage}>
-                            <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                Pick Image
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                            <Text style={styles.actionBtnCnl}>cancel</Text>
-                        </TouchableOpacity>
+                        <ActionSheet
+                            ref={actionSheetRef}
+                            containerStyle={{
+                                backgroundColor: theme == "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                            }}
+                        >
+                            {/* <Text style={styles.actionHeadding}></Text> */}
+                            <View style={styles.actionWrap}>
+                                <TouchableOpacity onPress={captureImage}>
+                                    <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Take a photo
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={pickImage}>
+                                    <Text style={[styles.actionBtn, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                        Pick Image
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                                    <Text style={styles.actionBtnCnl}>cancel</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ActionSheet>
                     </View>
-                </ActionSheet>
-            </View>
-        </View>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 

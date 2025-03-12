@@ -6,6 +6,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Text, View, TouchableOpacity, StyleSheet, useColorScheme, ToastAndroid, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/components/store/Store";
+import { Ionicons } from "@expo/vector-icons";
 export default function Home() {
     const theme = useColorScheme();
     const { userToken, setUserToken } = useAuth();
@@ -23,7 +24,7 @@ export default function Home() {
     // Fetch data function
     async function inititems(email) {
         const result = await fetchalldiary(userToken?.email);
-        console.log(typeof userToken);
+
         // Define the type for the items object where the keys are date strings and values are arrays of EventItem objects
 
         let tempitem = {};
@@ -129,7 +130,6 @@ export default function Home() {
                                     router.push(`/editOld?data=${item.date}`, {});
                                 }}
                                 onLongPress={() => {
-                                    console.log("long press");
                                     Alert.alert(
                                         "Delete data?", // Title
                                         " Delete selected entry ?", // Message
@@ -143,7 +143,9 @@ export default function Home() {
                                                 style: "destructive", // This marks the button as destructive
                                                 onPress: async () => {
                                                     try {
-                                                        await deleteDiaryData(userToken?.email, dateval);
+                                                        await deleteDiaryData(userToken?.email, item.date);
+                                                        console.log(item.date);
+                                                        inititems(userToken?.email);
                                                     } catch (error) {
                                                         console.log(error);
                                                     }
