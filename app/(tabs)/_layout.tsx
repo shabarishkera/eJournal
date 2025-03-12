@@ -22,7 +22,7 @@ import { useAuth } from "@/components/store/Store";
 export default function TabLayout() {
     const colorScheme = useColorScheme();
     const { userToken, setUserToken, loading, setLoading } = useAuth();
-    console.log(userToken, setUserToken);
+
     // const [userTocken, setUserTocken] = useState<String | null>(null);
 
     const theme = useColorScheme();

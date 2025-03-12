@@ -34,7 +34,7 @@ export default function editProfile(prop) {
 
             if (result) {
                 let parsedRes = await JSON.parse(result);
-                console.log(parsedRes);
+
                 let res = await finduserDetails(parsedRes.email);
                 if (res) {
                     setUser(res);

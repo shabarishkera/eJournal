@@ -39,7 +39,7 @@ export default function Login({ setUserTocken }) {
             if (!isLogin) {
                 if (form.email && form.name && form.password === form.confirmPassword) {
                     const res = await createuser(form.email, form.name, form.password, form.bio, form.avatarUrl);
-                    console.log(res);
+
                     if (res) {
                         AsyncStorage.setItem(
                             "userToken",

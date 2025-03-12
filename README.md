@@ -19,36 +19,58 @@ A simple yet powerful journal app built using **React Native** and **Expo**. Thi
 ### Light Theme 🌞
 
 <img src="assets/screenshots/home.jpg" width="300"/>
-*Home screen in light theme.*
-
 <img src="assets/screenshots/add.jpg" width="300"/>
-*Add journal entry screen in light theme.*
 
 <img src="assets/screenshots/settings.jpg" width="300"/>
-*Settings screen in light theme.*
-
 <img src="assets/screenshots/profile.jpg" width="300"/>
-*Profile screen in light theme.*
 
 <img src="assets/screenshots/login.jpg" width="300"/>
 *Login screen in light theme.*
 
 ### Dark Theme 🌜
 
-<img src="assets/screenshots/home.jpg" width="300"/>
-_Home screen in dark theme._
+<img src="assets/screenshots/homed.jpg" width="300"/>
+<img src="assets/screenshots/addd.jpg" width="300"/>
 
-![Add Screen Dark Theme](assets/screenshots/add_dark.jpg)
-_Add journal entry screen in dark theme._
-
-![Settings Screen Dark Theme](assets/screenshots/settings_dark.jpg)
-_Settings screen in dark theme._
-
-![Profile Screen Dark Theme](assets/screenshots/profile_dark.jpg)
+<img src="assets/screenshots/settingsd.jpg" width="300"/>
+<img src="assets/screenshots/profiled.jpg" width="300"/>
 _Profile screen in dark theme._
 
-![Journal Entry Screen Dark Theme](assets/screenshots/journal_entry_dark.jpg)
-_Detailed journal entry screen in dark theme._
+## Installation 🛠️
+
+Follow these steps to get the app up and running locally on your machine.
+
+### Prerequisites 🚀
+
+Ensure that you have the following installed:
+
+-   [Expo CLI](https://docs.expo.dev/get-started/installation/)
+-   A code editor like [Visual Studio Code](https://code.visualstudio.com/)
+-   An Android/iOS simulator or a physical device to run the app
+
+### Clone the Repository 🍴
+
+Clone the repository to your local machine using the following command:
+
+git clone https://github.com/shabarishkera/eJournal.git
+
+Navigate into the project folder:
+
+cd eJournal
+
+### Install Dependencies 📦
+
+Run the following command to install all the required dependencies:
+
+npm install
+
+### Start the Expo Project 🚀
+
+Now, you can start the development server with Expo:
+
+npm start
+
+This will open the Expo development tools in your browser. You can scan the QR code to open the app on your phone, or you can run it in an emulator.
 
 ## Usage 🛠️
 

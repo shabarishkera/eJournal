@@ -92,7 +92,7 @@ export default function Home() {
                         //     return (
                         //         <TouchableOpacity
                         //             onPress={() => {
-                        //                 console.log(selected);
+                        //
                         //                 router.replace(`/addOld?data=${item.date}`);
                         //             }}
                         //             style={styles.item}
@@ -144,7 +144,7 @@ export default function Home() {
                                                 onPress: async () => {
                                                     try {
                                                         await deleteDiaryData(userToken?.email, item.date);
-                                                        console.log(item.date);
+
                                                         inititems(userToken?.email);
                                                     } catch (error) {
                                                         console.log(error);
