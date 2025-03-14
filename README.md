@@ -18,22 +18,22 @@ A simple yet powerful journal app built using **React Native** and **Expo**. Thi
 
 ### Light Theme 🌞
 
-<img src="assets/screenshots/home.jpg" width="300"/>
-<img src="assets/screenshots/add.jpg" width="300"/>
+<img src="assets/screenshots/home.jpg" width="300"/>   <img src="assets/screenshots/add.jpg" width="300"/>
 
-<img src="assets/screenshots/settings.jpg" width="300"/>
-<img src="assets/screenshots/profile.jpg" width="300"/>
+
+<img src="assets/screenshots/settings.jpg" width="300"/>   <img src="assets/screenshots/profile.jpg" width="300"/>
+
 
 <img src="assets/screenshots/login.jpg" width="300"/>
 *Login screen in light theme.*
 
 ### Dark Theme 🌜
 
-<img src="assets/screenshots/homed.jpg" width="300"/>
-<img src="assets/screenshots/addd.jpg" width="300"/>
+<img src="assets/screenshots/homed.jpg" width="300"/>  <img src="assets/screenshots/addd.jpg" width="300"/>
 
-<img src="assets/screenshots/settingsd.jpg" width="300"/>
-<img src="assets/screenshots/profiled.jpg" width="300"/>
+
+<img src="assets/screenshots/settingsd.jpg" width="300"/>  <img src="assets/screenshots/profiled.jpg" width="300"/>
+
 _Profile screen in dark theme._
 
 ## Installation 🛠️
