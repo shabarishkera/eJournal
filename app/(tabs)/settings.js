@@ -47,7 +47,7 @@ export default function Settings(props) {
         initUser();
     }, []);
     const lightTheme = {
-        color: "#888",
+        color: "##636161",
         contentBackground: "#f8f8f8",
         backgroundColor: "#ffffff",
         borderColor: "#f0f0f0",
@@ -536,6 +536,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         color: "#292929",
+        className: "header",
     },
     profileHandle: {
         marginTop: 2,

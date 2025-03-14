@@ -6,14 +6,13 @@ import {
     View,
     useColorScheme,
     Alert,
-    SafeAreaView,
     Image,
     KeyboardAvoidingView,
     Platform,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
-
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import { addDiary, getDiaryByDate, editDiary, finduserDetails } from "@/components/backend/database";
 import { Colors } from "@/constants/Colors";
@@ -31,7 +30,7 @@ export default function Add() {
     const [user, setUser] = useState(null);
     //only happens in case for the  // State for holding the diary text
     const lightTheme = {
-        color: "#888",
+        color: "##636161",
         contentBackground: "#f8f8f8",
         backgroundColor: "#ffffff",
         borderColor: "#f0f0f0",
@@ -162,7 +161,7 @@ export default function Add() {
                                             backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
                                             color: colortheme.text,
                                             paddingHorizontal: 20,
-                                            elevation: 40,
+                                            elevation: 10,
                                         },
                                     ]}
                                     value={diary}
@@ -179,10 +178,19 @@ export default function Add() {
                                         styles.saveBtn,
                                         {
                                             backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            borderWidth: 1,
+                                            borderColor: theme === "dark" ? darkTheme.contentBackground : "#266ef1",
                                         },
                                     ]}
                                 >
-                                    <Text style={[styles.saveText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                    <Text
+                                        style={[
+                                            styles.saveText,
+                                            {
+                                                color: theme == "dark" ? darkTheme.color : lightTheme.color,
+                                            },
+                                        ]}
+                                    >
                                         {isEdit ? "UPDATE" : "ADD"}
                                     </Text>
                                 </TouchableOpacity>

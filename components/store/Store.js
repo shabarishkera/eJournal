@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useLayoutEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { init } from "../backend/database";
 // Define a context for user authentication
 const AuthContext = createContext();
 
@@ -12,6 +12,7 @@ export default function Store(props) {
     useEffect(() => {
         (async () => {
             try {
+                await init();
                 const token = await AsyncStorage.getItem("userToken");
                 setUserToken(JSON.parse(token));
                 setLoading(false);

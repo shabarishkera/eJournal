@@ -127,6 +127,9 @@ export async function edituser(email, username, bio, avatarUrl) {
 }
 export async function finduser(email, password) {
     try {
+        const a = await database.getAllAsync("SELECT * FROM user");
+        console.log(a);
+
         const res = await database.getFirstAsync(`SELECT * FROM user where email=? and password=?`, email, password);
         return res;
     } catch (error) {

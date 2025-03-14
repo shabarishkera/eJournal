@@ -118,12 +118,12 @@ export default function Home() {
                                         },
                                     ]}
                                 >
-                                    <Text style={styles.itemText}>No Data Avalialble...Click to add ..</Text>
+                                    <Text style={styles.itemText}>No entry for the day ... Click to add ..</Text>
                                 </TouchableOpacity>
                             );
                         }}
-                        futureScrollRange={1}
-                        pastScrollRange={1}
+                        //  futureScrollRange={1}
+                        //  pastScrollRange={1}
                         renderItem={(item) => (
                             <TouchableOpacity
                                 onPress={() => {

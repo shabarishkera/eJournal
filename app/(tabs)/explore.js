@@ -1,7 +1,6 @@
 import {
     StyleSheet,
     Dimensions,
-    SafeAreaView,
     ScrollView,
     View,
     TouchableOpacity,
@@ -13,7 +12,7 @@ import {
     Platform,
     Alert,
 } from "react-native";
-
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Feather as FeatherIcon } from "@expo/vector-icons";
 import { Menu, MenuItem } from "react-native-material-menu";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -48,7 +47,7 @@ export default function Explore() {
         { label: "Entries", value: entry?.length },
     ];
     const lightTheme = {
-        color: "#888",
+        color: "##636161",
         contentBackground: "#f8f8f8",
         backgroundColor: "#ffffff",
         borderColor: "#f0f0f0",
@@ -111,147 +110,157 @@ export default function Explore() {
     }, []);
     const theme = useColorScheme();
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }}>
-            <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={0} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                <View style={styles.header}>
-                    <View style={styles.headerAction}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                // handle onPress
-                            }}
-                        >
-                            {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
-                        </TouchableOpacity>
-                    </View>
-                    <Text numberOfLines={1} style={[styles.headerTitle, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
-                        Profile
-                    </Text>
-
-                    <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
-                        <Menu
-                            visible={visible}
-                            anchor={
-                                <FeatherIcon
-                                    color={theme === "dark" ? darkTheme.color : lightTheme.color}
-                                    onPress={() => setVisible(true)}
-                                    name="more-vertical"
-                                    size={24}
-                                />
-                            }
-                            onRequestClose={() => {
-                                setVisible(false);
-                            }}
-                            style={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
-                        >
-                            <MenuItem
-                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
-                                onPress={() => {
-                                    router.push("/editProfile");
-                                }}
-                            >
-                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Edit Profile</Text>
-                            </MenuItem>
-                            <MenuItem
-                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
-                                onPress={() => {
-                                    actionSheetRef.current?.show();
-                                }}
-                            >
-                                <Text style={{ color: "red" }}> Log out</Text>
-                            </MenuItem>
-                            <MenuItem
-                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
-                                onPress={async () => {
-                                    try {
-                                        await deleteTables();
-                                    } catch (error) {
-                                        console.log(error);
-                                    }
-                                }}
-                            >
-                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> delete tables</Text>
-                            </MenuItem>
-                            <MenuItem
-                                style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
-                                onPress={() => {
-                                    Alert.alert(
-                                        "Delete data?", // Title
-                                        "All of your data will be deleted, are you sure to continue ?", // Message
-                                        [
-                                            {
-                                                text: "Cancel", // Cancel button
-                                                style: "cancel", // 'cancel' style for a non-destructive action
-                                            },
-                                            {
-                                                text: "Delete", // Destructive button
-                                                style: "destructive", // This marks the button as destructive
-                                                onPress: async () => {
-                                                    try {
-                                                        await deleteUserData(user?.email);
-                                                        setVisible(false);
-                                                    } catch (error) {
-                                                        console.log(error);
-                                                    }
-                                                }, // Action to take if confirmed
-                                            },
-                                        ],
-                                        { cancelable: true }
-                                    );
-                                }}
-                            >
-                                <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Delete my data</Text>
-                            </MenuItem>
-                        </Menu>
-                    </View>
-                </View>
-
-                <ScrollView
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing} // Controls whether the spinner is active
-                            onRefresh={onRefresh} // Triggered when the user pulls to refresh
-                            tintColor="#39B54A" // Customize the color of the spinner
-                            // Customize the title text color
-                            colors={["#22C55E"]}
-                        />
-                    }
+        <SafeAreaProvider>
+            <SafeAreaView style={{ flex: 1, backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor }}>
+                <KeyboardAvoidingView
+                    style={{ flex: 1 }}
+                    keyboardVerticalOffset={0}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
                 >
-                    <View style={styles.content}>
-                        <View
-                            style={[
-                                styles.profile,
-                                { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor },
-                            ]}
+                    <View style={styles.header}>
+                        <View style={styles.headerAction}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    // handle onPress
+                                }}
+                            >
+                                {/* <FeatherIcon color="#000" name="arrow-left" size={24} /> */}
+                            </TouchableOpacity>
+                        </View>
+                        <Text
+                            numberOfLines={1}
+                            style={[styles.headerTitle, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
                         >
-                            <Text style={styles.sectionTitle}>Account</Text>
-                            <View style={styles.profileTop}>
-                                <View style={styles.avatar}>
-                                    <Image
-                                        alt=""
-                                        source={{
-                                            uri: user?.avatarUrl,
-                                        }}
-                                        style={styles.avatarImg}
+                            Profile
+                        </Text>
+
+                        <View style={[styles.headerAction, { alignItems: "flex-end" }]}>
+                            <Menu
+                                visible={visible}
+                                anchor={
+                                    <FeatherIcon
+                                        color={theme === "dark" ? darkTheme.color : lightTheme.color}
+                                        onPress={() => setVisible(true)}
+                                        name="more-vertical"
+                                        size={24}
                                     />
+                                }
+                                onRequestClose={() => {
+                                    setVisible(false);
+                                }}
+                                style={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
+                            >
+                                <MenuItem
+                                    style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                    onPress={() => {
+                                        router.push("/editProfile");
+                                    }}
+                                >
+                                    <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> Edit Profile</Text>
+                                </MenuItem>
+                                <MenuItem
+                                    style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                    onPress={() => {
+                                        actionSheetRef.current?.show();
+                                    }}
+                                >
+                                    <Text style={{ color: "red" }}> Log out</Text>
+                                </MenuItem>
+                                {/* <MenuItem
+                                    style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                    onPress={async () => {
+                                        try {
+                                            await deleteTables();
+                                        } catch (error) {
+                                            console.log(error);
+                                        }
+                                    }}
+                                >
+                                    <Text style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}> delete tables</Text>
+                                </MenuItem> */}
+                                <MenuItem
+                                    style={{ color: theme === "dark" ? darkTheme.color : lightTheme.color }}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            "Delete data?", // Title
+                                            "All of your data will be deleted, are you sure to continue ?", // Message
+                                            [
+                                                {
+                                                    text: "Cancel", // Cancel button
+                                                    style: "cancel", // 'cancel' style for a non-destructive action
+                                                },
+                                                {
+                                                    text: "Delete", // Destructive button
+                                                    style: "destructive", // This marks the button as destructive
+                                                    onPress: async () => {
+                                                        try {
+                                                            await deleteUserData(user?.email);
+                                                            setVisible(false);
+                                                        } catch (error) {
+                                                            console.log(error);
+                                                        }
+                                                    }, // Action to take if confirmed
+                                                },
+                                            ],
+                                            { cancelable: true }
+                                        );
+                                    }}
+                                >
+                                    <Text style={{ color: "red" }}> Delete Data</Text>
+                                </MenuItem>
+                            </Menu>
+                        </View>
+                    </View>
 
-                                    <View style={styles.avatarNotification} />
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing} // Controls whether the spinner is active
+                                onRefresh={onRefresh} // Triggered when the user pulls to refresh
+                                tintColor="#39B54A" // Customize the color of the spinner
+                                // Customize the title text color
+                                colors={["#22C55E"]}
+                            />
+                        }
+                    >
+                        <View style={styles.content}>
+                            <View
+                                style={[
+                                    styles.profile,
+                                    { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor },
+                                ]}
+                            >
+                                <Text style={styles.sectionTitle}>Account</Text>
+                                <View style={styles.profileTop}>
+                                    <View style={styles.avatar}>
+                                        <Image
+                                            alt=""
+                                            source={{
+                                                uri: user?.avatarUrl,
+                                            }}
+                                            style={styles.avatarImg}
+                                        />
+
+                                        <View style={styles.avatarNotification} />
+                                    </View>
+
+                                    <View style={styles.profileBody}>
+                                        <Text
+                                            style={[styles.profileTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}
+                                        >
+                                            {user?.name}
+                                        </Text>
+
+                                        <Text style={styles.profileSubtitle}>
+                                            <Text style={{ color: "" }}>{user?.email}</Text>
+                                        </Text>
+                                    </View>
                                 </View>
 
-                                <View style={styles.profileBody}>
-                                    <Text style={[styles.profileTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                        {user?.name}
-                                    </Text>
+                                <Text style={styles.profileDescription}>{user?.bio}</Text>
 
-                                    <Text style={styles.profileSubtitle}>
-                                        <Text style={{ color: "" }}>{user?.email}</Text>
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <Text style={styles.profileDescription}>{user?.bio}</Text>
-
-                            <View style={styles.profileTags}>
-                                {/* {tags.map((tag, index) => (
+                                <View style={styles.profileTags}>
+                                    {/* {tags.map((tag, index) => (
                                 <TouchableOpacity
                                     key={index}
                                     onPress={() => {
@@ -261,213 +270,221 @@ export default function Explore() {
                                     <Text style={styles.profileTagsItem}>#{tag}</Text>
                                 </TouchableOpacity>
                             ))} */}
+                                </View>
                             </View>
-                        </View>
 
-                        <View
-                            style={[
-                                styles.stats,
-                                { backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
-                            ]}
-                        >
-                            {stats.map(({ label, value }, index) => (
-                                <View key={index} style={[styles.statsItem, index === 0 && { borderLeftWidth: 0 }]}>
-                                    <Text style={styles.statsItemText}>{label}</Text>
-
-                                    <Text style={[styles.statsItemValue, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                        {value}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-
-                        <View style={[styles.contentActions, {}]}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    router.push("/editProfile");
-                                }}
-                                style={{ flex: 1, paddingHorizontal: 6 }}
+                            <View
+                                style={[
+                                    styles.stats,
+                                    { backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground },
+                                ]}
                             >
-                                <View
-                                    style={[
-                                        styles.btn,
-                                        {
-                                            color: theme == "dark" ? darkTheme.color : lightTheme.color,
-                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                                        },
-                                    ]}
-                                >
-                                    <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                        Edit Profile
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
+                                {stats.map(({ label, value }, index) => (
+                                    <View key={index} style={[styles.statsItem, index === 0 && { borderLeftWidth: 0 }]}>
+                                        <Text style={styles.statsItemText}>{label}</Text>
 
-                            <TouchableOpacity
-                                onPress={() => {
-                                    router.navigate("/(tabs)/settings");
-                                }}
-                                style={{ flex: 1, paddingHorizontal: 6 }}
-                            >
-                                <View
-                                    style={[
-                                        styles.btn,
-                                        {
-                                            color: theme == "dark" ? darkTheme.color : lightTheme.color,
-                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                                        },
-                                    ]}
-                                >
-                                    <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                        Settings
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    <View style={styles.list}>
-                        <View style={styles.listHeader}>
-                            <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>Recents</Text>
-
-                            <TouchableOpacity
-                                onPress={() => {
-                                    // handle onPress
-                                }}
-                            >
-                                {/* <Text style={styles.listAction}>View All</Text> */}
-                                <View
-                                    style={[
-                                        styles.search,
-                                        {
-                                            backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
-                                        },
-                                    ]}
-                                >
-                                    <View style={styles.searchIcon}>
-                                        <FeatherIcon color="#778599" name="search" size={17} />
+                                        <Text
+                                            style={[styles.statsItemValue, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}
+                                        >
+                                            {value}
+                                        </Text>
                                     </View>
+                                ))}
+                            </View>
 
-                                    <TextInput
-                                        autoCapitalize="words"
-                                        onChangeText={(t) => setSearchTerm(t)}
-                                        value={searchTerm}
-                                        autoComplete="name"
-                                        placeholder="Search..."
-                                        placeholderTextColor="#778599"
-                                        style={[styles.searchControl, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
-                            {items.map(({ data, dateinfo, year }, index) => (
+                            <View style={[styles.contentActions, {}]}>
                                 <TouchableOpacity
-                                    key={index}
                                     onPress={() => {
-                                        router.push(`/editOld?data=${dateinfo}`, {});
+                                        router.push("/editProfile");
                                     }}
+                                    style={{ flex: 1, paddingHorizontal: 6 }}
                                 >
                                     <View
                                         style={[
-                                            styles.card,
+                                            styles.btn,
+                                            {
+                                                color: theme == "dark" ? darkTheme.color : lightTheme.color,
+                                                backgroundColor:
+                                                    theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            },
+                                        ]}
+                                    >
+                                        <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                            Edit Profile
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        router.navigate("/(tabs)/settings");
+                                    }}
+                                    style={{ flex: 1, paddingHorizontal: 6 }}
+                                >
+                                    <View
+                                        style={[
+                                            styles.btn,
+                                            {
+                                                color: theme == "dark" ? darkTheme.color : lightTheme.color,
+                                                backgroundColor:
+                                                    theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                            },
+                                        ]}
+                                    >
+                                        <Text style={[styles.btnText, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                            Settings
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View style={styles.list}>
+                            <View style={styles.listHeader}>
+                                <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                    Recents
+                                </Text>
+
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        // handle onPress
+                                    }}
+                                >
+                                    {/* <Text style={styles.listAction}>View All</Text> */}
+                                    <View
+                                        style={[
+                                            styles.search,
                                             {
                                                 backgroundColor:
                                                     theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
                                             },
                                         ]}
                                     >
-                                        <View style={styles.cardTop}>
-                                            <View style={styles.cardIcon}>
-                                                <FeatherIcon color="#000" name={"book"} size={24} />
-                                            </View>
-
-                                            <View style={styles.cardBody}>
-                                                <Text
-                                                    style={[
-                                                        styles.cardTitle,
-                                                        { color: theme == "dark" ? darkTheme.color : lightTheme.color },
-                                                    ]}
-                                                >
-                                                    {formatDate(dateinfo) || dateinfo}
-                                                </Text>
-
-                                                <Text numberOfLines={1} style={styles.cardSubtitle}>
-                                                    {data}
-                                                </Text>
-                                            </View>
+                                        <View style={styles.searchIcon}>
+                                            <FeatherIcon color="#778599" name="search" size={17} />
                                         </View>
 
-                                        <View style={styles.cardFooter}>
-                                            <Text style={styles.cardFooterText}>{}</Text>
-
-                                            <Text style={styles.cardFooterText}>{year}</Text>
-                                        </View>
+                                        <TextInput
+                                            autoCapitalize="words"
+                                            onChangeText={(t) => setSearchTerm(t)}
+                                            value={searchTerm}
+                                            autoComplete="name"
+                                            placeholder="Search..."
+                                            placeholderTextColor="#778599"
+                                            style={[styles.searchControl, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}
+                                        />
                                     </View>
                                 </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-                    </View>
+                            </View>
 
-                    <View style={styles.list}>
-                        <View style={styles.listHeader}>
-                            <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
-                                Activity
-                            </Text>
+                            <ScrollView contentContainerStyle={styles.listContent} horizontal={true} showsHorizontalScrollIndicator={false}>
+                                {items.map(({ data, dateinfo, year }, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        onPress={() => {
+                                            router.push(`/editOld?data=${dateinfo}`, {});
+                                        }}
+                                    >
+                                        <View
+                                            style={[
+                                                styles.card,
+                                                {
+                                                    backgroundColor:
+                                                        theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground,
+                                                },
+                                            ]}
+                                        >
+                                            <View style={styles.cardTop}>
+                                                <View style={styles.cardIcon}>
+                                                    <FeatherIcon color="#000" name={"book"} size={24} />
+                                                </View>
 
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setShowTimeline(!showTimeline);
-                                }}
-                            >
-                                <Text style={styles.listAction}>{showTimeline ? "Graph  View" : "Graph  View"}</Text>
-                            </TouchableOpacity>
+                                                <View style={styles.cardBody}>
+                                                    <Text
+                                                        style={[
+                                                            styles.cardTitle,
+                                                            { color: theme == "dark" ? darkTheme.color : lightTheme.color },
+                                                        ]}
+                                                    >
+                                                        {formatDate(dateinfo) || dateinfo}
+                                                    </Text>
+
+                                                    <Text numberOfLines={1} style={styles.cardSubtitle}>
+                                                        {data}
+                                                    </Text>
+                                                </View>
+                                            </View>
+
+                                            <View style={styles.cardFooter}>
+                                                <Text style={styles.cardFooterText}>{}</Text>
+
+                                                <Text style={styles.cardFooterText}>{year}</Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
                         </View>
 
-                        <ContributionGraph
-                            values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
-                            endDate={new Date()} // Set the end date to match your graph data
-                            numDays={100} // Number of days you want to show
-                            width={Dimensions.get("window").width}
-                            height={220}
-                            chartConfig={{
-                                ...chartConfig,
-                                backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
-                                backgroundGradientFrom: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
-                                backgroundGradientTo: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
-                            }}
-                            horizontal={true}
-                            style={{ paddingTop: 15 }}
-                        />
+                        <View style={styles.list}>
+                            <View style={styles.listHeader}>
+                                <Text style={[styles.listTitle, { color: theme == "dark" ? darkTheme.color : lightTheme.color }]}>
+                                    Activity
+                                </Text>
 
-                        {}
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowTimeline(!showTimeline);
+                                    }}
+                                >
+                                    <Text style={styles.listAction}>{showTimeline ? "Graph  View" : "Graph  View"}</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <ContributionGraph
+                                values={prepareDataForContributionGraph(entry?.map((item) => item.dateinfo))}
+                                endDate={new Date()} // Set the end date to match your graph data
+                                numDays={100} // Number of days you want to show
+                                width={Dimensions.get("window").width}
+                                height={220}
+                                chartConfig={{
+                                    ...chartConfig,
+                                    backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                                    backgroundGradientFrom: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                                    backgroundGradientTo: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                                }}
+                                horizontal={true}
+                                style={{ paddingTop: 15 }}
+                            />
+
+                            {}
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+                <ActionSheet
+                    ref={actionSheetRef}
+                    containerStyle={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
+                >
+                    <Text style={[styles.actionHeadding, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
+                        Are You Sure To log out ?
+                    </Text>
+                    <View style={styles.actionWrap}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                AsyncStorage.removeItem("userToken");
+                                setUserToken(null);
+                                actionSheetRef.current?.hide();
+                            }}
+                        >
+                            <Text style={styles.actionBtnCnl}>ok</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
+                            <Text style={[styles.actionBtn, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>cancel</Text>
+                        </TouchableOpacity>
                     </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-            <ActionSheet
-                ref={actionSheetRef}
-                containerStyle={{ backgroundColor: theme === "dark" ? darkTheme.contentBackground : lightTheme.contentBackground }}
-            >
-                <Text style={[styles.actionHeadding, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>
-                    Are You Sure To log out ?
-                </Text>
-                <View style={styles.actionWrap}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            AsyncStorage.removeItem("userToken");
-                            setUserToken(null);
-                            actionSheetRef.current?.hide();
-                        }}
-                    >
-                        <Text style={styles.actionBtnCnl}>ok</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => actionSheetRef.current?.hide()}>
-                        <Text style={[styles.actionBtn, { color: theme === "dark" ? darkTheme.color : lightTheme.color }]}>cancel</Text>
-                    </TouchableOpacity>
-                </View>
-            </ActionSheet>
-        </SafeAreaView>
+                </ActionSheet>
+            </SafeAreaView>
+        </SafeAreaProvider>
     );
 }
 const chartConfig = {
@@ -614,7 +631,7 @@ const styles = StyleSheet.create({
     },
     /** Content */
     content: {
-        paddingTop: 10,
+        paddingTop: 5,
         paddingHorizontal: 24,
     },
     contentActions: {
@@ -628,7 +645,7 @@ const styles = StyleSheet.create({
     /** Profile */
     profile: {
         padding: 4,
-        paddingBottom: 16,
+        paddingBottom: 10,
         backgroundColor: "#f8f8f8",
         marginBottom: 4,
         borderRadius: 4,
@@ -653,6 +670,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
         letterSpacing: 0.33,
         fontWeight: "500",
+        className: "header",
     },
     profileSubtitle: {
         fontSize: 15,

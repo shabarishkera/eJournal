@@ -106,7 +106,7 @@ export default function Login({ setUserTocken }) {
 
                     <Text style={styles.title}>Let's Get Started!</Text>
 
-                    <Text style={styles.subtitle}>Fill in the fields below to get started with your credentials.</Text>
+                    <Text style={styles.subtitle}>Fill in the fields below to get started with your app.</Text>
                     <ScrollView>
                         <View style={[styles.form]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                             {!isLogin && (

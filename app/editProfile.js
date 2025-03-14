@@ -116,14 +116,16 @@ export default function editProfile(prop) {
         actionSheetRef.current?.hide();
     };
     return (
-        <KeyboardAvoidingView style={[{ flex: 1 }]} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-            <ScrollView>
-                <View
-                    style={[
-                        styles.container,
-                        { backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor },
-                    ]}
-                >
+        <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={0} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: theme === "dark" ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+                    },
+                ]}
+            >
+                <ScrollView style={{ flex: 1, minWidth: 300 }}>
                     <View style={styles.avatarContainer}>
                         <Image style={styles.avatar} source={{ uri: avatar }} />
                         <TouchableOpacity
@@ -192,8 +194,8 @@ export default function editProfile(prop) {
                             </View>
                         </ActionSheet>
                     </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
         </KeyboardAvoidingView>
     );
 }
@@ -201,13 +203,11 @@ export default function editProfile(prop) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#fff",
     },
-    form: {
-        width: "80%",
-    },
+
     label: {
         marginTop: 20,
     },
